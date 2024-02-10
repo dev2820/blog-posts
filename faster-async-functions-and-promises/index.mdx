@@ -1,0 +1,54 @@
+---
+title: faster-async-functions-and-promises
+created: 2024-01-21T12:40:51.204Z
+modified: 2024-01-21T12:50:16.610Z
+slug: faster-async-functions-and-promises
+---
+  
+참고)
+
+[https://v8.dev/blog/fast-async](https://v8.dev/blog/fast-async)
+
+자바스크립트의 비동기 프로세스는 전통적으로 특별히 빠르지 않은 것으로 유명하다. 설상가상으로, 특히 Node.js 서버와 같은 라이브 자바스크립트 응용 프로그램들을 디버깅하는 것은 특히 비동기 프로그래밍에 있어서 쉬운 일이 아니다. 운 좋게도, 그들은 변화하고 있다. 이 글에서는 V8 (그리고 자바스크립트 엔진에서 어느 정도)에서 비동기 기능과 `Promise`를 최적화한 방법을 탐구하고 비동기 코드에 대한 디버깅 경험을 개선한 방법을 설명한다.
+
+## A new approach to async programming
+
+### from callbacks to promises to async functions
+
+Promise가 자바스크립트 언어의 일부가 되기 전, callback-기반 API들은 일반적으로 비동기 코드에 특히 Node.js에서 사용되었다.
+
+(코드)
+
+앞선 방식으로 깊이 nesting된 콜백들을 사용하는 특정 패턴은 코드 가독성을 떨어뜨리고 유지보수를 어렵게 하기 때문에 "callback hell"이라고 불린다.
+
+운좋게도, 이제 promises가 자바스크립트 언어에 포함되었기 때문에 같은 코드도 다음과 같이 멋지고 유지보수 편하게 작성될 수 있다.
+
+(코드)
+
+더 최근엔, 자바스크립트에서 async function을 지원하기 시작했다. 앞선 비동기 코드는 이제 동기 코드와 아주 유사하게 작성될 수 있다.
+
+(코드)
+
+async 함수를 사용하면, 코드는 더 간결해지고, 동작은 여전히 비동기임에도 제어와 데이터 흐름이 훨씬 쉽게 따라온다. (자바스크립트 실행은 여전히 싱글 스레드에서 동작합을 기억하라, 이는 비동기 함수가 스스로 물리적 스레드를 생성하지 않음을 의미한다.)
+
+### From event listener calblacks to async lteration
+
+Node.js에서 특히 자주 볼 수 있는 또 다른 비동기 패러다임은 ReadableStream이다. 여기 예제가 있다.
+
+(코드)
+
+이 코드는 따라가기 살짝 어려울 수 있다: 들어오는 데이터는 콜백에서만 접근할 수 있는 청크들로 처리되며, 스트림의 종료를 알리는 시그널 또한 콜백 내부에서 발생한다. 함수가 즉시 종료되고 실제 처리는 콜백 내부에서 이루어져야한다는 것을 깨닫지 못하면 버그를 만들어내기 쉽다.
+
+다행히도 ES2018에서 부터 async iteration이라 불리는 멋진 기능이 도입되어 이 코드를 단순하게 만들 수 있다.
+
+(코드)
+
+실제 요청을 처리하는 두 개의 다른 콜백(data와 end 콜백)을 삽입하는 대신, 우리는 모든 것을 하나의 async function안에 넣을 수 있고 새 루프인 `for await ...of` 를 이용해 모든 청크들을 비동기적으로 순회할 수 있다. 우리는 또한 여기에 `try-catch` 를 더해 `unhandleRejection` 문제를 피할 수 있다.
+
+우리는 이미 이 새 기능들을 오늘날 실서비스에 도입하고 있다. 비동기 함수는 Node.js 8 (V8 v6.2 / Chrome 62)부터 완전히 지원되고 있고 async iterator와 generator는 Node.js 10 (V8 v6.8 / Chrome 68) 부터 완전히 지원되고 있다.
+
+### Async performance improvements
+
+[https://v8.dev/blog/fast-async#async-performance-improvements](https://v8.dev/blog/fast-async#async-performance-improvements)
+
+여기서부터
