@@ -1,0 +1,195 @@
+## 이분 탐색 (Binary Search)
+
+이분 탐색 알고리즘은 정렬된 배열 내에서 특정한 원소를 찾는데 특화된 알고리즘이다. 말 그대로 배열을 둘로 분할(divide)한뒤 탐색을 하는데, 이렇게 되면 탐색 영역이 절반씩 줄어든다.
+
+이분 탐색 전략이 성립하려면 **정렬되어 있음**이 전제되어야한다. 정렬되어있지 않다면 분할한 영역중 한 영역에 찾으려는 값이 없다는 것을 보장할 수 없기 때문이다.
+
+먼저 재귀 방식으로 이분 탐색 알고리즘을 설계해보자.
+
+```
+binarySearch(start,end) {
+  mid = (start + end)/2;
+  if(start > end) {
+    // 탐색 범위가 0보다 작기 때문에 target을 찾을 수 없다.
+    return -1;
+  }
+  if(inputs[end] < target) {
+    // 찾고자 하는 값이 범위의 최대값보다 크다면 주어진 범위안에 target이 존재하지 않는다는 뜻이다.
+    return -1;
+  }
+  if(inputs[start] > target) {
+    // 마찬가지로 범위의 최소값보다 target이 작다면 주어진 범위에 target은 존재하지 않는다.
+    return -1;
+  }
+  if(inputs[mid] == target) {
+    // 배열 중앙의 원소값이 target과 일치하는지 확인한다.
+    return mid;
+  }
+
+  // 중앙값의 왼쪽 배열과 오른쪽 배열 중에서 원소를 찾는 행위를 재귀적으로 반복한다.
+  return max(
+    binarySearch(start, mid-1),
+    binarySearch(mid+1,end)
+  )
+}
+```
+
+우리가 문제를 어떻게 작게 쪼개었는지 살펴보자.
+
+> 문제: 길이 n인 정렬된 배열 A가 주어질 때 배열 안의 x의 위치를 구하라
+>
+> 1. 종료조건을 정의한다.
+>
+> - 배열에서 x를 찾을 수 없다면 -1을 반환한다.
+> - 배열의 중앙 값이 x라면 그 인덱스를 반환한다.
+>
+> 2. 분할 방법을 선택한다.
+>
+> - 배열의 중앙을 기준으로 배열을 2개로 쪼갠다.
+> - 쪼갠 배열에 대해 종료조건을 대입, 이 과정을 반복한다.
+
+앞에선 큰 문제를 작은 문제로 쪼개고 각개격파한다는 것을 강조하기 위해 구태여 쪼갠 두 범위를 다시 탐색했다. 정렬된 배열의 특성을 이용해 알고리즘을 좀 더 효율적으로 바꿀 수 있다.
+
+```
+binarySearch(start,end) {
+  mid = (start + end)/2;
+  if(start > end) {
+    // 범위가 0이라면 원소를 찾을 수 없다.
+    return -1;
+  }
+  if(inputs[mid] == target) {
+    // 배열 중앙의 원소값이 target과 일치하는지 확인한다.
+    return mid;
+  }
+
+  if(inputs[mid] > target) {
+    // inputs[mid]가 target보다 크다면 inputs[mid+1...end]도 target보다 클 것이기에 확인하지 않아도 된다.
+    return binarySearch(start,mid-1);
+  }
+  else {
+    // inputs[mid]가 target보다 작다면 inputs[start...mid-1]도 target보다 작을 것이기에 확인하지 않아도 된다.
+    return binarySearch(mid+1,end)
+  }
+}
+```
+
+### 재귀 이분 탐색의 복잡도
+
+이분 탐색을 통해선 탐색 범위가 절반씩 줄어든다.
+최선의 상황은 짚은 중앙 값이 바로 찾던 값인 경우이다. 1번의 비교가 필요하기 때문에 최선의 복잡도는 `1`이다.
+최악의 상황은 배열 안에서 타겟을 찾지 못하는 상황이다. 매번 값의 비교(같은지,큰지,작은지)와 절반 만큼의 재귀가 일어난다. 값의 크코작고같음 비교를 단위연산으로 보자. 다음의 점화식을 새울 수 있다.
+
+> W(n) = W(n/2) + 1
+>
+> W(n) = n 길이 배열에 대한 이분연산에서 일어나는 단위연산의 수
+
+이 경우 `logn + 1`의 연산이 필요하다.
+
+즉, 복잡도는 `O(logn)`이 된다.
+
+### 재귀 이분탐색 javascript 구현
+
+js로 구현하면 다음과 같다.
+
+```js
+function binarySearch(start, end, inputs, target) {
+  const mid = Math.floor((start + end) / 2);
+  if (start > end) {
+    return -1;
+  }
+  if (inputs[mid] === target) {
+    return mid;
+  }
+  if (inputs[mid] < target) {
+    return binarySearch(mid + 1, end, inputs, target);
+  }
+  return binarySearch(start, mid - 1, inputs, target);
+}
+
+const inputs = [0, 0, 1, 2, 3, 3, 4, 5, 6, 6];
+const target = 4;
+const result = binarySearch(0, inputs.length - 1, inputs, target);
+console.log(result);
+
+// example)
+// inputs: [0, 0, 1, 2, 3, 3, 4, 5, 6, 6]
+// target: 4
+
+// step1)
+// inputs: [0, 0, 1, 2, 3, 3, 4, 5, 6, 6]
+
+// - mid: 5
+// - inputs[5] = 3 -> target보다 작다.
+// - 탐색 범위를 [4, 5, 6, 6]으로 좁힌다.
+
+// step2)
+// inputs:  [4, 5, 6, 6]
+
+// - mid: 1
+// - inputs[1] = 5 -> target보다 크다.
+// - 탐색 범위를 [4]로 좁힌다.
+
+// step3)
+// inputs: [4]
+
+// - mid: 0
+// - inputs[0] = 4 -> target과 일치한다.
+// - 찾았다!
+```
+
+### 반복 이분탐색
+
+아직까진 [Church-Turing thesis](https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis)에 따라 재귀는 반복문으로 치환이 가능하다고 알려져있다. (나중에 학습하게 된다면 관련한 내용도 적어보겠다.)
+
+재귀가 아닌 반복문을 쓰면 다음의 이점이 있다.
+
+- 메모리를 더 적게 사용한다. (parameter에 해당하는 메모리를 사용하지 않는다.)
+- 콜스택을 쌓지 않기 때문에 더 빠르다. (물론 big-o가 변할정도는 아니다.)
+
+수도코드로 나타내보자.
+
+```
+binarySearch2(start,end) {
+  while(start <= end) {
+    mid = (start + end)/2;
+
+    if(inputs[mid] == target) {
+      return mid;
+    }
+    else if(inputs[mid] > target) {
+      end = mid-1;
+    }
+    else {
+      start = mid+1;
+    }
+  }
+
+  return -1;
+}
+```
+
+### 반복 이분탐색 javascript 구현
+
+```js
+function binarySearch2(inputs, start, end, target) {
+  while (start <= end) {
+    const mid = Math.floor((start + end) / 2);
+
+    if (inputs[mid] === target) {
+      return mid;
+    } else if (inputs[mid] > target) {
+      end = mid - 1;
+    } else {
+      start = mid + 1;
+    }
+  }
+
+  return -1;
+}
+```
+
+## 추가적인 생각거리
+
+이분 탐색이 가능하다면 삼분,사분 탐색도 가능할까?
+
+그렇다면 그렇게 했을 때 어떤 장점이 있을까?
