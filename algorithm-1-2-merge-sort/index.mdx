@@ -20,7 +20,7 @@ slug: algorithm-1-2-merge-sort
 2. 정복: 각 배열을 정렬한다.
 3. 취합: 정렬된 두 배열을 합병한다.
 
-```
+```js
 // 수도코드
 
 mergeSort(arr) {
@@ -95,7 +95,7 @@ merge(arr1,arr2) {
 
 먼저 합병을 할 때의 시간복잡도를 계산해보자.
 
-``` 
+```js
 두 배열의 길이가 각각 h,m일 때
 
 비교 연산은 최악의 경우 `W(h,m) = h + m - 1`이다. h=4, m=4(m=5일때도 동일하다) 일 때 총 8번의 비교가 일어난다.
@@ -211,7 +211,7 @@ console.log("Sorted array:", sortedArray);
 출처: https://www.slideserve.com/lamond/8-external-sorting
 수도코드는 다음과 같다.
 
-```
+```js
 // k-way merge
 mergeSort(arr) {
   subArrays = [];
