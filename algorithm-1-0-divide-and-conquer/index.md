@@ -56,7 +56,7 @@ function bigProblem(input) {
 
 ### 하노이의 탑
 
-![하노이의 탑](./images/image.png)
+![하노이의 탑](./images/hanoi.png)
 출처: https://ko.wikipedia.org/wiki/%ED%95%98%EB%85%B8%EC%9D%B4%EC%9D%98_%ED%83%91
 
 하노이의 탑을 완성하기 위해 원판을 옮기는 작업의 최소 수를 `T(n), n=원판의 수`라고 하자
