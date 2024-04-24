@@ -57,12 +57,12 @@ function quicksort(index low, index high) {
   
   // low ~ high를 pivot을 기준으로 양분한다.
   // 배열은 왼쪽은 pivot보다 작은 값, 오른쪽은 큰 값들이 오게 된다. 
-  partition(low, high, pivot);
+  divide = partition(low, high, pivot);
 
   // pivot보다 작은 값들을 정렬한다.
-  quicksort(low, pivot - 1);
+  quicksort(low, divide - 1);
   // pivot보다 큰 값들을 정렬한다.
-  quicksort(pivot+1, high);
+  quicksort(divide + 1, high);
 }
 ```
 
@@ -209,7 +209,6 @@ Locality, 지역성이란 CPU가 메모리를 참조할 땐, 주로 메모리 �
 합병정렬은 전체 메모리를 순회하는 방식으로 정렬을 하지만 퀵소트는 국지적인 영역을 정렬하는 방식으로 정렬이 이루어지는 것을 볼 수 있다. 이 때문에 퀵 소트는 메모리 지역성을 제대로 활용하고 캐시의 수혜를 최대로 누리기 때문에 평균적으로 합병정렬보다 빠르게 된다.
 
 ## 어떤 위치를 pivot으로 지정할 것인가 (퀵소트 최적화)
-
 ### Random Pivot
 퀵소트는 배열이 pivot을 기준으로 비슷한 크기로 양분(partitioning)될 때 성능이 좋다. 
 반대로 말하면 배열이 역순, 혹은 정순으로 정렬되어 있을수록 성능이 떨어진다. 
@@ -249,13 +248,13 @@ function quicksort(index low, index high) {
 ```js
 function quicksort(index low, index high) {
   left = low, middle = (low + high) / 2, right = high;
-  if(arr[left] < arr[middle] && arr[left] < arr[right]) {
+  if((arr[middle] < arr[left] && arr[left] < arr[right]) || arr[middle] > arr[left] && arr[left] > arr[right]) {
     pivot = left;
   }
-  if(arr[middle] < arr[left] && arr[middle] < arr[right]) {
+  if((arr[left] < arr[middle] && arr[middle] < arr[right]) || arr[left] > arr[middle] && arr[middle] > arr[right]) {
     pivot = middle;
   }
-  if(arr[right] < arr[middle] && arr[right] < arr[left]) {
+  if((arr[left] < arr[right] && arr[right] < arr[middle]) || (arr[left] > arr[right] && arr[right] > arr[middle])) {
     pivot = right;
   }
   
