@@ -5,7 +5,7 @@ modified: 2024-10-20T19:40:24.000Z
 slug: the-future-of-frontend-developers-with-ai
 draft: true
 tags: ["ai", "frontend"]
-summary: [채우세용]
+summary: AI의 발전이 서비스의 양상을 어떻게 바꾸고 있는지, 이에 따라 프론트엔드 개발자에겐 어떤 역량이 중요해질지 예측해본다.
 ---
 
 ## 개요
