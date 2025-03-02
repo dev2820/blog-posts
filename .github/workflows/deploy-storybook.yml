@@ -14,13 +14,13 @@ jobs:
       - name: Checkout source repository
         uses: actions/checkout@v3
 
-      # 3. Git setup
+      # 2. Git setup
       - name: Setup Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git submodule init
-      # 4. 대상 레포지토리 체크아웃
+      # 3. 대상 레포지토리 체크아웃
       - name: Checkout target repository
         uses: actions/checkout@v3
         with:
@@ -28,12 +28,17 @@ jobs:
           token: ${{ secrets.TARGET_REPO_ACCESS }}
           path: repo # 대상 레포지토리를 'repo' 폴더에 체크아웃
 
-      # 3. 대상 레포지토리에서 sh 스크립트 실행 (bump 커밋 생성)
+      # 4. 대상 레포지토리에서 sh 스크립트 실행
       - name: Run custom sh script in target repository
         run: |
           cd repo
           chmod +x ./fetch-post.sh 
           ./fetch-post.sh  # 스크립트 실행
+
+      # 5. Version Bump 생성
+      - name: Bump
+        run: |
+          npm version patch
 
       # 6. 배포 트리거
       - name: Commit and push changes
