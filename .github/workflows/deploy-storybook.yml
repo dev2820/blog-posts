@@ -38,7 +38,7 @@ jobs:
       # 5. Version Bump 생성
       - name: Bump
         run: |
-          ls -l
+          cd repo
           npm version patch
 
       # 6. 배포 트리거
