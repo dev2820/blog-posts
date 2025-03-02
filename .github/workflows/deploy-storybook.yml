@@ -32,8 +32,8 @@ jobs:
       - name: Run custom sh script in target repository
         run: |
           cd repo
-          chmod +x ./repo/fetch-post.sh 
-          ./repo/fetch-post.sh  # 스크립트 실행
+          chmod +x ./fetch-post.sh 
+          ./fetch-post.sh  # 스크립트 실행
 
       # 6. 배포 트리거
       - name: Commit and push changes
