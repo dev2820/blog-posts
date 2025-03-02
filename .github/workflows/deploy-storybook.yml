@@ -40,8 +40,9 @@ jobs:
         run: |
           cd repo
           npm version patch
+          git status
 
       # 6. 배포 트리거
-      - name: Commit and push changes
+      - name: Push changes
         run: |
           git push origin main
