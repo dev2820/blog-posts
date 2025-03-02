@@ -36,13 +36,8 @@ jobs:
           ./fetch-post.sh  # 스크립트 실행
 
       # 5. Version Bump 생성
-      - name: Bump
+      - name: Bump and Push
         run: |
           cd repo
           npm version patch
-          git status
-
-      # 6. 배포 트리거
-      - name: Push changes
-        run: |
-          git push origin main
+          git push
