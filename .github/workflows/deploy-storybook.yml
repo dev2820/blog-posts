@@ -19,7 +19,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
+          git submodule init
       # 4. 대상 레포지토리 체크아웃
       - name: Checkout target repository
         uses: actions/checkout@v3
