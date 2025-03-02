@@ -1,0 +1,40 @@
+name: Deploy Blog
+
+on:
+  push:
+    branches:
+      - main # 트리거될 브랜치를 설정 (main 브랜치에 push 시)
+
+jobs:
+  run-script-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 현재 레포지토리를 체크아웃
+      - name: Checkout source repository
+        uses: actions/checkout@v3
+
+      # 3. Git setup
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 4. 대상 레포지토리 체크아웃
+      - name: Checkout target repository
+        uses: actions/checkout@v3
+        with:
+          repository: dev2820/next-blog
+          token: ${{ secrets.TARGET_REPO_ACCESS }}
+          path: repo # 대상 레포지토리를 'repo' 폴더에 체크아웃
+
+      # 3. 대상 레포지토리에서 sh 스크립트 실행 (bump 커밋 생성)
+      - name: Run custom sh script in target repository
+        run: |
+          chmod +x ./repo/fetch-post.sh 
+          ./repo/fetch-post.sh  # 스크립트 실행
+
+      # 6. 배포 트리거
+      - name: Commit and push changes
+        run: |
+          git push origin main
