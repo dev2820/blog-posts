@@ -31,6 +31,7 @@ jobs:
       # 3. 대상 레포지토리에서 sh 스크립트 실행 (bump 커밋 생성)
       - name: Run custom sh script in target repository
         run: |
+          cd repo
           chmod +x ./repo/fetch-post.sh 
           ./repo/fetch-post.sh  # 스크립트 실행
 
