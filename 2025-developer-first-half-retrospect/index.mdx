@@ -19,14 +19,14 @@ summary: 2025년 개발자 상반기 회고
 
 기존에 글을 쓰고 수동으로 올리던 방식을 자동화하여 글쓰기 경험을 개선했다. 방식은 단순하다.
 
-![previous hosting structure](./images/hosting-structure.png)<em>이전 호스팅 구조</em>
+![previous hosting structure](./images/hosting-structure.png)_이전 호스팅 구조_
 
 우선 나는 글을 모아놓는 포스트 레포와 블로그 레포를 분리해서 운영하고 있다. 블로그 레포는 포스트 레포를 서브모듈로 참조하고 있다.
 따라서 기존엔 글을 써서 포스트 레포에 올리고, 블로그 레포에 가서 서브모듈을 패치한 뒤, bump commit을 밀어넣으면 블로그를 호스팅하는 서비스가 이를 감지해 블로그를 새로 빌드해 호스팅하는 식이었다.
 
 이미 이전에 블로그를 만들고 실패했던 경험이 있기에 이 방식을 유지할 수 없다고 생각했다. 이런 불편함이 반복되면 흥미가 떨어지고 글쓰기가 스트레스가 된다.
 
-![previous hosting structure 2](./images/hosting-structure2.png)<em>개선된 호스팅 구조</em>
+![previous hosting structure 2](./images/hosting-structure2.png)_개선된 호스팅 구조_
 
 그래서 Github Action을 사용해 글이 올라가면 블로그 레포의 서브 모듈을 갱신하고 bump commit을 밀어넣어 블로그 빌드가 자동으로 이루어지게 변경했다. 이를 구현하는 것은 오래 걸리지 않았다. 이런 내용은 내가 설계만 할 수 있다면 GPT가 쓱싹해서 처리해준다. (과거에도 그랬지만 이젠 더욱 설계 능력이 중요하다고 느낀다.)
 
