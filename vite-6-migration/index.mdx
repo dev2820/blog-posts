@@ -1,0 +1,330 @@
+---
+title: Vite 6 주요 변경사항
+published: 2025-05-04T15:29:00.000Z
+modified: 2025-05-04T15:29:00.000Z
+slug: vite-6-migration
+draft: false
+tags: ["vite"]
+summary:
+---
+
+## Vite의 생태계 확장
+
+VoidZero: 에반 유가 만든 회사. JS 생태계를 위한 오픈소스 + 높은 성능 + 통합된 개발 툴체인을 제공하기 위한 회사.
+Vite과 Vitest외에 Rolldown, Oxc를 추가로 개발중이며 이들을 vite에 포함시키기 위해 도약중이다. (2025-05월 기준 둘 다 베타에 올라와있다.)
+(이제 Vue는 더 신경쓰지 않는걸까?)
+
+## Evan You 키노트
+
+Evan You는 Rust로 동작하는 Vite의 미래를 그리고 있다. [참고](https://www.youtube.com/watch?v=EKvvptbTx6k)
+
+> Vite has become the shared infrastructure layer for the next generation of web applications.
+> But Vite isn't perfect
+
+### 번역
+
+#### Vite의 현 지표
+
+...먼저 npm 다운로드는 증가하고 있고 주간 15백만 다운로드를 기록했다. 작년 viteconf에 비교하면 두 배 이상 성장했다.
+몇일 전만 해도 일일 다운로드가 3백만 이상이었다. 반면 Vitest는 빠르게 Jest를 대체하고 있으며 6백만 주간 다운로드를 기록했다.
+...대충 잘나가고 있다는 내용
+
+또한 Vite은 여전히 성장중인 광범위한 에코시스템을 구축하고 있다. vite은 이제 SPA를 만들때 사용되는 대부분의 프레임워크의 기본 빌드도구이다.
+그리고 NextJS를 제외한 거의 모든 자바스크립트 메타프레임워크 라이브러리에서 동작한다.
+
+많은 프레임워크들이 vite위에서 만들어지며 그 경험을 공유하기에, 바퀴를 다시 발명하지 않아도 될 뿐만 아니라 플러그인, 테스트러너, 심지어 각 프레임워크에서 사용할 수 있는 배포 어뎁터까지도 공유하기에 그들이 풀고자하는 진짜 문제에 집중할 수 있다.
+
+...
+이걸 작년에 얘기했으면 다소 이른 이야기였겠지만. 오늘날엔 Vite이 웹 어플리케이션의 다음 세대를 위한 공유된 인프라 레이어(the shared infrastructure layer)가 되었음을 선언할 수 있다.
+
+#### Vite의 문제점들
+
+...
+하지만 나는 vite이 완벽하지 않다는 것을 알고있는 사람 중 하나이다. 자바스크립트 커뮤니티가 vite을 기반으로 교체되고 있다는 사실은 나로 하여금 Vite의 결점과 미래, 그리고 그것들을 위해 우리가 무얼 해야하는지에 대해 깊이 고민하게 만든다.
+나는 꽤 야망찬 결론에 도달했다. 나는 오늘 여러분에게 내 생각의 흐름을 공유하고자 한다.
+
+왜 사람들은 vite을 사랑하는지에 대해서 먼저 이야기 해보자. 사람들이 vite을 사랑하는 이유는 그것이 웹 개발을 다시금 쉽게 느껴지게 만들어주어서이다. 이는 모두가 웹 개발이 점점 과도하게 복잡해지고 있음을 암시한다. 그리고 그것은 사실이다! vite은 끝단의 유저들이 이해하는 것들보다 많은 복잡성을 숨기고있다. 내부적으로 우리가 단순화하거나 변경하거나 향상시키길 바라는 것들이 있다.
+
+우리는 이 모든 복잡한 것들을 vite의 기반을 이루고 있는 아래의 감사한 도구들로만 다룰 수 있다. 대체로 esbuild, rollup, swc
+esbuild는 의존성 번들링, typescript,jsx 변환에 사용된다.
+타겟 lowering, 문법 lowering 변환 그리고 production build의 minification에도 기본적으로 사용된다.
+
+롤업은 production 번들링에 사용된다. 그리고 우리는 롤업의 호환 가능한 플러그인 시스템을 사용한다.
+
+SWC는 default로 사용되진 않지만, 리액트 앱을 만들 것이며, Babel보다 빠른 리액트 리프레시 transform을 원한다면 우리가 제공하는 SWC 기반 리액트 플러그인을 사용해야한다.
+따라서 만약 당신이 그 플러그인을 쓰고 있다면, 당신은 vite을 통해 하나의 앱에 이 세가지 도구 의존성을 갖고 있는 샘이다.
+
+이 아키텍쳐는 실제로 꽤 잘 동작하고 있다. 우리는 그 어려운 문제들을 이 도구들에 위임할 수 있어 감사하다. 하지만 이 아키텍처는 뚜렷한 문제들을 갖고 있다.
+
+하나씩 파해쳐보자.
+
+먼저 우리가 왜 2개의 번들러(esbuild,rollup)을 사용해야하는지 설명해야한다. 우리는 번개처럼 빠른 esbuild를 사용하지만, esbuild의 트리셰이킹과 코드 스플릿은 rollup만큼 설정가능하지도(configurable) 완벽하지도 않다.
+그리고 esbuild의 플러그인 시스템은 rollup에 비교하면 다소 융통성없다. 그래서 우리는 esbuild를 개발하는동안 의존성들을 번들링하는데만 사용한다. 이것을 우리가 이미 알고 있듯이 dep pre-bundling 혹은 dep optimizer라 부른다.
+또한 기본적으로 우리는 esbuild를 transformer로도 사용한다. 타입스크립트, 앞서 언급했던 syntax lowering 그리고 production 빌드시 청크 minify등에 사용한다.
+
+우리는 rollup을 프로덕션 빌드에 사용한다. rollup은 더 나은 청크 컨트롤과 트리쉐이킹 동작을 설정하기에 더 나은 유연성을 갖고 있기에 어플리케이션 번들링에서 esbuild보다 더 적합하다.
+하지만, rollup은 자바스크립트로 작성되었다. 번들링 성능은 webpack보단 낫지만 esbuild와 같이 native 언어로 작성된 번들러보다는 훨신 느리다.
+
+SWC는 용량이 커서 vite의 default로 들어있지는 않다. macOS에서 SWC의 이진파일 사이즈는 37mb이다. 그리고 이건 vite과 vite의 모든 의존성을 더한 것보다 2배 이상 크다.
+그리고 swc가 포괄적인 transform, 높은 수준의 minifier를 갖고 있지만, 실제 사용 가능한 번들러를 제공하지는 않는다.
+
+우리는 여전히 부족반 부분을 채워줄 또 다른 번들러를 사용할 필요가 있다.
+
+그래서 우리는 불행히도 이 다중 의존 시나리오에 묶여있다.
+
+첫 번째 문제는 이 구조가 vite의 동작을 일관적이지 않게 만든다는 것이다.
+esbuild와 rollup은 esm과 cjs모듈이 혼합된 경우 이를 래핑하는 동작하는 동작에 차이가 있다. 이는 때때로 프로덕션 빌드 후 라이브될 때만 발견할 수 있는 미묘한 버그를 일으킨다.
+
+두 번째 문제는 빌드 파이프라인의 비효율성이다. 같은 소스코드 조각이 프로덕션 빌드에서 사로 다른 도구들(esbulid,rollup,swc)에 의해 반복적으로 AST로 파싱되고, 변환되고 직렬화된다.
+더 안좋은 것은, native 측면에서 뒤로갔다 앞으로갔다 한다는 것이다. 예를 들어, go process(esbuild가 go로 작성되었음)를 타고 javascript 메인 스레드로 갔다가 러스트로 전달되고 다시 자바스크립트로 전달된다.
+따라서 이러한 큰 데이터 청크들을 각 프로세스끼리 주고받는 것은 많은 오버헤드를 갖는다. 그리고 이것은 sourcemap을 활성화해둔 경우 더 나빠지는데, 왜냐하면 이 도구 사이의 각 단계, 개별적인 단계마다 소스 맵의 재매핑과 병합이 필요하기 때문입니다.
+
+마지막으로, 번들링되지 않은 native ESM 개발 서버는 잘 동작하지만 임계치를 넘고나선 아니다. 수만개의 번들링되지 않은 모듈들을 HTTP를 통해 요청할 때 네트워크 오버헤드가 누적된다. 그리고 이것은 개발중에 한 페이지를 불러오는데 몇 초씩 걸리게 만든다.
+아마 vite을 통해 빌드하는 90%의 앱들은 이 문제가 크게 다가오지 않겠지만 나머지 10%의 개발 경험은 fully bundled 접근에 비해 까다롭게 느껴질 것이다.
+불행하게도, 현재 모델에서 우리는 이를 해결할 마땅한 해결책이 없다. 우리는 development와 production 모두에서 사용할 수 있는 번들러를 바란다.
+하지만 esbuild는 우리의 플러그인 시스템에 호환되지 않는다. 그리고 development/production 불일치를 심화시킬 것이다.
+그리고 rollup을 사용하는 것은 단순하게 너무 느리다.
+
+#### 자바스크립트 생태계의 문제로 확장하다
+
+그래서 우리 것을 하나 만들어서 vite에서 사용할 번들러를 통합할 필요가 있다. 그리고 이것이 우리가 Rolldown 개발을 시작한 이유이다.
+하지만 본격적으로 Rolldown을 다루기 전에, 나는 조금 더 생각해 보았다. 그리고 Rolldown 작업을 진행하면서, 이 분야를 더 깊이 파고들게 되었다.
+
+나는 심지어 번들러 레이어 아래의 추상화에서도 비슷한 문제를 갖는다는 것을 발견했다. 그래서, 우리가 번들러에서 멈출 필요가 있겠는가?
+나는 Vite이 마주한 과제가 자바스크립트 생태계 전반의 문제를 반영하고 있음을 깨달았다. 자바스크립트는 단순한 스크립트 언어에서 출발해 오늘날 문자 그대로 가장 광범위하게 사용되는 언어로 발전했다. 이 과정에서 자바스크립트 커뮤니티는 공식 도구의 부재와 사용 사례의 규모 및 복잡성의 급격한 성장을 매꾸기 위해 정말 정말 정말 다양한 도구를 만들어냈다.
+우리는 더더욱 야망찬 앱들을 만들고 있다. 그리고 우리는 모든 이 엔지니어링 모범 사례들, 새롭게 생겨난 복잡성, 타입을 사용해야 한다는 요구, 번들링과 압축 등 수많은 요구 사항을 따라잡기 위해 허둥지둥 도구들을 만들어야만 했습니다.
+
+우리는 이 과정에서 여러 문제를 발견했고, 그 문제들을 해결하기 위한 도구들을 만들었다. 이건 축복이자 저주이다. 왜냐하면 자바스크립트 생태계가 아마 가장 역동적인 커뮤니티이기 때문이다. 너무나 많은 혁신이 있고, 너무나 많은 훌륭한 도구들이 나왔다. 커뮤니티의 역동성은 우리에게 필요한 모든 도구를 제공했다. 하지만 이는 동시에 새로운 문제를 직면하게 했다. 파편화, 비호환성, 비효율성 그리고 대부분의 경우 좌절감이 그것이다.
+
+불일치와 비효율성 문제를 해결하기 위한 나의 결론은 자바스크립트를 위한 통합된 툴체인이 필요하다는 것이다. 파서에서 시작하고 끝단의 프레임워크를 지원하기 위한 의미론 분석기(semantic analysis),transformer, linter, formatter, minifier, bundler, 가장 상위의 공통 추상화 계층(Vite)까지 모두를 포함한 그런 툴체인 말이다.
+
+#### 자바스크립트 툴체인이 이루게 될 것들
+
+그리고 다음은 이 툴체인이 할 수 있을 것이라 믿고 있는 것들이다. 통합, 높은 성능, 합성가능성 그리고 런타임에 대한 직교(agnostic)성.
+
+먼저 '통합'. 소스코드를 빌드된 인공물로 만드는 프로세스에 관련된 모든 테스크들은 같은 AST를 쓰고 같은 설정과 모듈 포멧 상호운용성을 위한 통합된 규칙과 path resolution을 적용한 같은 도구 집합에 의해 수행될 것이다.
+
+둘째, 높은 성능. TypeScript 변환이나 코드 번들링처럼 명확하게 정의된 작업의 경우, 가능한 모든 지점에서 성능을 극대화하려는 집착을 가지고, 네이티브로 컴파일되는 언어로 도구를 작성해야한다. 오늘날 자바스크립트의 규모를 보건데, 툴링 성능의 향상은 개발 주기, CI 빌드, 제품 출시 속도를 높이는 강력한 지렛대 역할을 하며, 궁극적으로 모두의 비용 절감으로 이어진다.
+
+셋째, 합성가능성(Composable). 툴체인은 합성가능해야 한다. 툴체인의 각 컴포넌트는 의존성으로서 개별적으로 소비될 수 있어야한다. 예를 들어, parser, resolver 그리고 transformer는 rust crates(러스트 패키지 매니저인듯?) 와 npm packages로 사용할 수 있어야한다.
+또한, 사용자들이 이러한 네이티브 도구들을 활용하면서도 자신의 필요에 맞게 JavaScript 플러그인을 작성할 수 있도록, Rust와 JavaScript 간의 효율적인 상호 운용성(interoperability)도 갖추어져야 한다.
+
+마지막으로, 툴체인의 코어는 런타임에 직교성을 가져야한다. 이러한 도구들이나 도구 체인의 일부만 활용하려는 개발자들이 특정 JavaScript 런타임에 갇히도록 강요받아서는 안 된다. 우리는 당신이 자바스크립트를 쓰는 한, 어떤 런타임을 쓰는가 혹은 타겟하는 환경과 상관 없이 같은 개발 경험을 갖기를 바란다.
+
+#### VoidZero의 탄생
+
+이것들이 너무 야망적이라 생각하는가? 나도 그렇게 생각한다. 몇몇 다른 청취자들은 심지어 이미 시도해봤고, 실패했다. 하지만, 생각해봐라. 4년전, 누가 오늘날 Vite이 자바스크립트 프레임워크의 통합점이 될 것이라 생각했겠는가? 우리가 올바른 사람, 올바른 실행, 올바른 영향력, 그리고 충분한 리소스를 보유한다면 이 목표가 너무나 야망참에도 불구하고 정말로 가능한 것이라 믿는다.
+
+이것이 내가 VoidZero를 설립한 이유이다. 이 회사는 다음 세대 자바스크립트 도구들을 만든다. 우리는 Accel이 주도하고 Amplify Partners 및 개발자 도구 분야의 경험 많은 창업자들이 다수 참여한 가운데, 460만 달러의 시드 투자를 유치했다.
+
+우리는 이 비전을 실현시키기 위해 열심히 일할 정규직 팀을 구성했다.
+
+#### 큰 그림 + 밴치마크
+
+Oxc는 기초적인 언어 툴체인이 될 것이다. Oxc는 모든 것을 지원한다. Oxc에는 Parser, Semantic analysis, transformer, minifier, resolver, linter 그리고 formatter를 포함한다.
+Rolldown은 Oxc위에 만들어진 번들러로, 미래의 Vite에서 동작하는 통합된 번들러가 될 것이다. Vite과 Vitest를 통해서 우리는 모든 프레임워크들을 통합된 기반(foundation)으로 이전하고 구축해 나갈 예정입니다.
+
+지금까지 이야기한 프로세스를 정리해보자.
+이것은 Oxc의 진행 차트이다. Oxc는 이미 parser와 linter, resolver의 개발을 마쳤다. Oxc 프로젝트의 리더인 Boshen이 이 부분에 대해서는 실제로 나중에 더 자세히 이야기할 예정이니, 여기서는 간단히만 말하겠다.
+transformer에 대해, 우리는 이미 Typescript, JSX에 대해 동작하도록 만들었다. 우리는 TypeScript의 DTS(D.ts) 출력 과정에서 리프레시 변환(refresh transforms)과 선언 분리(고립 선언, isolated declarations)를 적용했습니다.
+우리가 현재 집중하고 있는 것은 Syntax lowering transform을 구현해 Transformer를 완료하는 것이다. Minifier와 Formatter는 프로토타입 단계에 있다. Transformer가 완료된 되에 진행할 예정이다.
+
+그럼 이제 Oxc는 얼마나 빠를까? 우리가 아는 한 이것은 앞선 모든 비교 가능한 카테고리 중에선 가장 빠르다고 할 수 있다. Oxc는 가장 빠른 파서, 가장 빠른 linter, 가장 빠른 resolver 그리고 가장 빠른 transformer를 가지고 있다. 모든 것들이 다른 rust 기반 솔루션들보다 3배 이상 빠르다.
+발표가 끝난 뒤 공유된 슬라이드를 통해 밴치마크를 링크해둘테니 직접 체크해보라.
+
+Oxc에 대해 언급하고 싶은, 다른 간과되기 쉬운 지표들도 있다. babel과 swc보다도 적은 메모리를 사용한다. 또한 다른 솔루션들보다도 적은 패키지 용량을 가진다.
+우리가 앞서 SWC를 vite에 기본적으로 탑재하지 않은 이유로 binary size가 너무 큰 것을 언급했었다.
+즉, Oxc Transform은 npm 의존성으로 사용할 경우, 대상 플랫폼에 맞는 바이너리를 자동으로 다운로드하며, MacOS에서는 그 크기가 단 1.95MB, 즉 2메가도 안 되는 수준입니다. 그리고 이는 SWC 크기의 거의 20분의 1 수준이죠, 맞죠?
+
+그리고 만약 Oxc를 Rust crate의 Rust 의존성으로 사용할 경우 더 빠르게 컴파일 된다. 왜냐하면 Oxc가 macro에 많이 의존하지 않기 때문이다.
+따라서 러스트 개발자에게도 Oxc는 개발 경험을 향상시킬 것이다.
+
+이제 Rolldown을 보자. Rolldown은 번들러로써 기대하는 대부분의 기능을 구현 완료 했다. 특히, CJS와 ESM 간의 상호 운용성, 소스 맵, 출력 포맷, 기본적인 코드 분할, CLI, 설정 파일 지원 등과 같은 기능들도 포함되어 있다.
+번들러에 일반적으로 기대하는 것들은 다 있다. 하지만 그것 위에, 우리는 Oxc을 통합했다. 이는 Rolldown이 빌트인 Typescript와 JSX transform, 빌트인 노드(node) 호환 resolving, 빌트인 alias handling 그리고 fully featured resolver로부터 모든 기능을 탑재하고 있다는 뜻이다.
+또한 production-quality 트리셰이킹, 롤업보다 강력한 advanced 청크 스플리팅 옵션같은 몇가지 advanced 기능들도 완료되었다.
+그리고 롤업 플러그인의 90% 호환성에 도달했다. 일부 niche 옵션들과 속성들만이 현재 지원되지 않고 있다. 그리고 이미 오피셜 롤업 플러그인들은 몇가지 특정 속성에 의존하지 않는 이상 잘 돌아가고 있다.
+롤업은 이제 2가지에 집중하고 있다. 첫째는 CSS,HTML과 asset에 대한 first-class 지원이다. 또 다른 하나는 esbuild와 rollup 대체를 위한 vite과의 통합을 테스트중이다. 롤업으로 동작하는 Vite의 진행사항(우리는 Rolldown Vite이라 부른다)은 현재 98% 개발모드 테스트가 진행되었고, 82% 빌드 테스트가 진행되었다. 테스트 커버리지를 완료하고 릴리즈하기 위한 과정은 아주 잘 진행되고 있다.
+우리가 이것들을 완료하고 나면 Rolldown을 출시하기 전에, Beta 1.0에서 동작 정합성 조정, 성능 튜닝, 그리고 코드 품질 다듬기 작업이 좀 더 진행될 예정입니다.
+Rolldown의 성능에 이해하기 위해 또 다른 번들러에서 포크해온 밴치마크를 사용했다. 그리고 그 밴치마크에 포함된 컴포넌트의 수를 늘렸다. 그래서 우리 버전의 밴치마크는 10,000개의 리액트 JSX 컴포넌트와 9,000개의 iconify JS files 도합 19,000개의 모듈을 번들링 했다.
+이제 Rolldown은 번들링을 0.63초만에 완료했다. 이는 esbuild의 거의 두 배, farm보단 3배, 그리고 rsbuild보단 5배 빠르다.
+
+우리가 심지어는 자바스크립트를 사용하는 번들러는 포함하지도 않았음에 주목하라. 그랬다면 그래프의 바가 화면을 뚫고 나갔을 것이다.
+그리고 우리가 rollup기반의 Vite으로 이 앱을 번들하려 하면 메모리가 초과되어 번들링이 끝나지 않는다.
+
+다음은 좀 더 현실적인 예제로 Oxc와 Rolldown을 이용해 Vue를 번들링하는 것이다.
+이제 Vue의 코드베이스는 이제 꽤나 복잡하다. Typescript 모노레포로 11개의 패키지, 62개의 dist 번들이 포함되어 있다. 이 패키지들간엔 상호 의존성이 존재한다. 모든 곳에서 타입스크립트를 쓰고 있고, 꽤나 복잡한 상호 패키지 의존성 그래프를 갖고 꽤 커스텀된 prebuilt 스탭을 가지고 있다.
+그래서 우리는 실제로 우리의 이전 rollup 기반 빌드 셋업을 rolldown으로 마이그레이션하고 있고 꽤나 설정이 단순해졌다. 왜냐하면 rolldown에서 빌트인으로 지원하는 기능들 덕에 여러 플러그인들을 제거할 수 있게 되었기 때문이다.
+
+주목할만한 점은, 번들 패키지들과 타입스크립트 declaration은 이제 rolldown과 Oxc의 isolated declaration DTS 를 사용해 transform 어쩌구 저쩌구
+암튼 빠르고 좋아짐
+
+#### 그 다음은 무엇인가?
+
+Environment API가 통합된 Vite 6의 아키텍처는 다음과 같다.
+여전히 esbuild와 rollup에 의존하고 있으며, 리액트를 쓴다면 빠른 refresh와 transform을 원할 것이고 babel은 쓰고 싶지 않고, SWC를 쓸 것이다.
+이것이 Vite의 현재이다. 최악의 시나리오에서 당신은 vite 안의 서로 다른 도구를 사용하고 있을 것이다.
+
+Vite의 다음 스탭(진행중인)은 다음과 같다.
+Rolldown Vite으로 알려진 다음 세대는 Rolldown으로 동작하며 Oxc가 내부적으로 존재한다. Dev와 Prod 번들링을 모두 다룰 수 있는 단 하나의 툴체인만 존재하기 때문에 이것은 dev/production 일관성을 상당히 증가시킬 것이다.
+또한 Rolldown은 Rust로 작성되었고 빠르게 spliting하기 때문에 프로덕션 빌드 성능을 꽤나 증가시킬 것이다.
+
+이것이 내년 초에는 릴리즈 되기를 기대하고 있다.
+
+더 먼 미래에 Vite은 Rolldown에 더 의존하도록 바뀔 것이다. 그리고 우리는 개발, 환경 모듈 러너, 그리고 프로덕션 환경 모두에서 Rolldown의 동일한 번들링 기능을 사용하게 될 것입니다.
+이로 인해, 대규모 애플리케이션에서 발생하는 번들링되지 않은 네트워크 병목 현상을 제거할 수 있습니다. 또한 브라우저 환경, 시뮬레이션된 Node.js 서버 렌더링, 워커 환경, 그리고 프로덕션 빌드까지 모든 환경에서 최대한의 일관성을 보장할 수 있습니다
+이는 모든 시나리오에서 가능한 최고의 성능을 제공할 것이다. 또한 당신에게 모든 테스크를 함께 핸들링하는 일관된 툴체인을 제공할 것이다. 이것이 우리의 장기 목표이다.
+
+현재는 프로토타입 스테이지에 있다. 왜냐하면 우리는 먼저 full bundle 모드가 실제로 동작하며 HMR이 rolldown에 의해 동작하는 것을 확실히 하고 싶기 때문이다.
+벤치마크에 따르면 HMR 성능 또한 기똥차다. 페이지 로드 성능은 현재 Vite에 비교해 5배 이상 빨라졌다.
+
+---
+
+## Vite 6.0 릴리즈
+
+## Vite의 미래
+
+Evan You 키노트 정리
+
+## Environment API
+
+https://green.sapphi.red/blog/increasing-vites-potential-with-the-environment-api
+
+### The evolving js ecosystem
+
+Vite의 첫 오피셜 릴리즈는 2021년 1월이었고, 현재 3년하고도 반정도 되었습니다. 3.5년간 JS 생태계는 변해왔습니다.
+
+먼저, Node.js를 제외한 다른 런타임들이 나타났습니다. 이 그래프는 State of JS에서 수집한 각 런타임의 사용률을 보여줍니다.
+Deno는 Vite이 2021년 릴리즈된 뒤로 점차 우상향했습니다. 그리고 다른 런타임들은 데이터 수집이 가능해진 2022년 이후 증가했습니다.
+2023년에 이러한 런타임들은 10%를 넘는 사용률을 기록했고, 지속적으로 성장할 것으로 기대됩니다.
+
+둘째로, Single Application은 이제 멀티 번들로 다뤄질 필요가 있습니다. 2020년 말, React Server Components가 발표되었습니다. 리액트 서버 컴포넌트를 쓰기 위해선 RSC 번들링이 필요하며, 이 번들은 SSR 과정에 사용될 SSR 번들 및 브라우저에서 사용되는 클라이언트 번들과는 또 다른 것 입니다.
+이는 3가지 서로다른 번들이 다뤄질 필요가 생겼음을 의미합니다.
+
+또한, 애플리케이션의 일부 기능을 서로 다른 서버에서 실행하기 위해 별도의 번들이 필요해지고 있습니다. 2022년에 Next.js에 추가된 middleware feature와 Next.js와 SvelteKit에 존재하는 각 페이지의 런타임을 특정하는 기능등이 그 예제입니다.
+이러한 기능들은 어플리케이션의 일부를 다른 위치, 다른 런타임에서 동작시키기 위해 번들을 분리하는 기능의 탄생을 필요로 합니다.
+
+그러나, Vite은 브라우저 혹은 SSR을 위해 각각 하나의 번들만이 만들어질 것을 가정하고 있습니다. 게다가, SSR 번들은 오직 Node.js에서 동작할 것으로 가정하고 있습니다.
+
+### 현재 Vite의 내부 구조와 Environment API에서 바뀌는 점
+
+Vite이 이러한 가정을 하는 것이 무엇을 의미하는지 설명하기 위해, 현재 Vite의 내부 구조를 봅시다. 빌드 단계엔 Node.js 외의 런타임들이 관여되지 않기 때문에 여기선 development 단계만을 집중해 설명하겠습니다.
+
+시작하기 앞서, SSR을 사용하지 않아 브라우저에서만 코드가 실행되는 경우 구조는 이렇게 될 것입니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-old-1.BXRqsuNX.svg
+
+브라우저를 위한 코드를 실행하기 위해서 브라우저는 Vite의 코드 transformer에 HTTP Request를 보내고, 변환된 코드는 브라우저에 의해 실행됩니다.
+
+다음은 SSR도 실행될 때 일어나는 일들입니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-old-2.Cmyr-Lt5.svg
+
+프레임워크가 브라우저로부터 HTTP 요청을 받으면 프레임워크는 Vite에서 export된 함수를 실행합니다. 이는 Vite의 code transformer를 호출합니다. 이 transformer는 코드를 서버에서 실행할 수 있게 변환한 뒤, Vite의 code executor가 변환된 코드를 실행합니다.
+code transformer와 code executor가 Node.js에 의존하고 있다는 것이 중요합니다. 그러므로, Vite은 Node.js를 사용하지 않고 실행될 수 없습니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-old-3.Bobb2fsq.svg
+
+이러한 이유로, Environment API가 이미지의 빨간 부분이 Environment API라는 이름으로 분리되었고, 이 파트를 교체하도록 디자인 되었습니다. 추가로, 이제 여러 개의 빨간 부분을 갖는 것이 가능합니다.
+
+code executor가 교체될 수 있게 만들기위해, code transformer와 code executor 사이의 소통은 함수 호출 외에 어떠한 방법도 가능하게 되었습니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-new-1.BEujXlU2.svg
+
+아래의 서버 사이드를 교체할 수 있게 만든 결과, 우리는 브라우저 코드의 처리 방식이 본질적으로 서버 코드와 같다는 것을 깨달았습니다.
+
+그러므로, 구조는 이 간결한 형태로 표현될 수 있습니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-new-2.Cl1c_vge.svg
+
+Environment API에서, code executor는 Module Runner라고 불리며, code transformer와 code executor 사이의 소통 채널은 Runner Transport라 부릅니다.
+
+https://green.sapphi.red/assets/vite-env-architecture-new-3.DmbjxGYv.svg
+
+Environment를 구성하기 위해 필요한 요소는 두 가지입니다.
+첫째, `eval`과 같은 동적 코드 평가 기능이 있어야 Module Runner를 구성할 수 있습니다.
+둘째, Module Runner와 Vite의 코드 변환 부분 간에 통신이 가능해야 합니다. 예를 들면 HTTP나 표준 입출력(standard I/O)같은 것을 통해서 말입니다.
+
+이 두 가지 조건이 충족된다면 해당 런타임에 대한 Environment를 구성할 수 있습니다.
+
+### Possible usages of the Environment API
+
+그래서, Environment API를 통해 실제로 무엇을 얻을 수 있을까요? 물론, 이를 통해 Node.js 외에 다른 런타임(Deno, Bun, workerd, Edge Runtime)을 사용하고 첫 섹션에서 언급했듯, 이 런타임들을 통해 번들링하는 것이 가능해졌습니다.
+
+추가적으로 구버전 Node.js 또한 사용할 수 있습니다. 지금까지는 code transformer와 code executor가 통합되어 있습니다. 따라서 코드 변환기의 요구사항을 충족하기 위해 Node.js의 필수 버전을 상향해야 했습니다. 하지만 코드 실행 부분을 분리함으로써, 이제는 구버전 Node.js용 환경도 구성할 수 있게 되었습니다.
+
+이로 인해 Electron, Tauri, React Native 그리고 기타 등등의 다른 특수한 런타임들을 위해 환경을 조성할 수 있게 되었습니다.
+
+극한의 케이스에서, Node.js위에 hono를 오리진 서버로 올리고, Cloudflare Workers에 hono를 엣지 서버로 동작시키고, service worker에서 hono를 동작시키며, 브라우저에서 스크립트를 실행하는 것이 가능합니다.
+이 아키텍처에 이름을 붙인다면, 저는 이를 “대연소(daienjo) 아키텍처”라고 부를 것입니다.
+(번역 주: 일본어로 “hono”는 “불꽃”을 의미하고, “daienjo”는 “거대한 불길”을 의미하며, 동시에 소셜 미디어에서의 큰 논란이나 화제를 의미하기도 합니다.)
+
+여기 daienjo 아키텍처의 데모가 있습니다.
+
+브라우저, 서비스 워커, 엣지 서버, 오리진 서버 어느 곳의 코드를 변경하든지 자동으로 리프레시가 일어납니다. 이 데모에서 environment API가 HMR을 지원하기 때문에 리프레시가 일어납니다. 만약 프레임워크나 랜더링 라이브러리가 HMR을 지원한다면, HMR이 대신 동작할 것입니다.
+모든 코드는 실제로 상응하는 런타임에서 실행될 것입니다. 예를 들어, 엣지 서버의 코드는 workerd에서 실행될 것입니다.
+
+모든 환경의 빌드는 단 한 줄(`vite build --app`)이 다입니다.
+
+이 데모에서, 서비스 워커는 브라우저로부터 요청을 받고 엣지 서버를 호출하며, 엣지 서버는 오리진 서버를 호출하고 edge와 서비스 워커에서 변환된 응답을 전달합니다.
+하지만 각 엔드포인트에 다른 런타임을 사용하는 것 또한 가능합니다.
+
+### The current state of the environment API
+
+environment API는 이미 main 브랜치에 머지되어 있으며, 6.0.0-beta.0. 버전에서 릴리즈됩니다.
+
+병합 이전에 실행된 ecosystem-ci(에코시스템 내 테스트를 수행하는 CI)는 대부분 통과했으며, 기존 코드가 계속 정상적으로 동작할 것으로 예상하고 있습니다. 사용자들이 v6로 원활하게 업그레이드할 수 있도록 v5에서 v6로의 전환을 최대한 매끄럽게 만들고자 합니다.
+
+우리는 Environment API를 v6의 실험적 기능으로 릴리즈할 것을 계획하고 있습니다.
+
+### Wrapping up
+
+Environment API는 멀티 번들과 다른 런타임 사용을 지원하기 위해 만들어졌습니다. 이는 Vite 측면에서 프레임워크 인프라 도구를 강화합니다.
+
+바로 많은 사람들이 이 기능을 사용할 것을 기대하지는 않지만, 이건 흥미로운 기능이고 피드백을 기대하고 있습니다. 만약 이 기능을 사용하지 않더라도, 흥미로운 환경을 한번 생각해보시길 바랍니다.
+
+문서는 아직 다듬어지지 않았지만 다음 몇주 이내에 더 구조화될 것입니다.
+
+## Vite 6의 핵심 변경점들
+
+https://vite.dev/blog/announcing-vite6.html#main-changes
+
+노드는 18,20,22를 지원합니다. 21버전은 드랍되었습니다. Node.js 18는 2025년 4월에 종료됩니다.
+
+### `resolve.conditions`의 기본 값 변경
+
+**resolve.conditions / ssr.resolve.conditions / ssr.resolve.externalConditions를 설정하지 않은 사용자에게는 이번 변경 사항이 영향을 미치지 않습니다.**
+
+Vite 5에서는 resolve.conditions의 기본값이 []였으며, 일부 조건이 내부적으로 추가되었습니다. ssr.resolve.conditions의 기본값은 resolve.conditions의 값이었습니다.
+
+Vite 6부터는 일부 조건이 더 이상 내부적으로 추가되지 않으며, 설정 파일에 명시적으로 포함시켜야 합니다. 내부적으로 더 이상 자동으로 추가되지 않는 조건은 다음과 같습니다:
+• resolve.conditions: ['module', 'browser', 'development|production']
+• ssr.resolve.conditions: ['module', 'node', 'development|production']
+
+이 옵션들의 기본값은 위 조건으로 업데이트되었으며, 이제 ssr.resolve.conditions는 더 이상 resolve.conditions를 기본값으로 사용하지 않습니다.
+여기서 development|production은 특별한 변수로, process.env.NODE_ENV의 값에 따라 development 또는 production으로 대체됩니다.
+이 기본값들은 Vite에서 defaultClientConditions와 defaultServerConditions로 내보내지고 있습니다.
+
+만약 resolve.conditions나 ssr.resolve.conditions에 사용자 지정 값을 설정해두었다면, 새 조건을 포함하도록 업데이트해야 합니다.
+예를 들어, 이전에 resolve.conditions를 ['custom']으로 설정했다면, 이제는 ['custom', ...defaultClientConditions]처럼 지정해야 합니다.
+
+### Sass API 변경
+
+In Vite 5, the legacy API was used by default for Sass. Vite 5.4 added support for the modern API.
+
+From Vite 6, the modern API is used by default for Sass. If you wish to still use the legacy API, you can set css.preprocessorOptions.sass.api: 'legacy' / css.preprocessorOptions.scss.api: 'legacy'. But note that the legacy API support will be removed in Vite 7.
+
+To migrate to the modern API, see the Sass documentation.
+
+### 그 외 마이너
+
+- terser version for `build.minify: 'terser'` was bumped to 5.16.0 from 5.4.0.
+
+## Vite 5**에서 마이그레이션할 때**
+
+https://vite.dev/guide/migration
+
+## References
+
+[Vite 6.0 is out!](https://vite.dev/blog/announcing-vite6)
+[Environment API](https://green.sapphi.red/blog/increasing-vites-potential-with-the-environment-api)
+[ViteConf 2024](https://youtu.be/EKvvptbTx6k)
