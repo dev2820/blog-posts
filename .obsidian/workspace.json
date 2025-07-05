@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "879892a39073a6d3",
+        "id": "54f1dbdae7902dad",
         "type": "tabs",
         "children": [
           {
-            "id": "f5d47fcef8f57eb9",
+            "id": "b533c835398663e7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2025-developer-first-half-retrospect/index.mdx",
+                "file": "what-is-oklch/index.mdx",
                 "mode": "source",
                 "source": false
               },
@@ -74,7 +74,8 @@
               "title": "북마크"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -94,7 +95,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "2025-developer-first-half-retrospect/index.mdx",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "index 의 백링크"
+              "title": "백링크"
             }
           },
           {
@@ -113,12 +113,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "2025-developer-first-half-retrospect/index.mdx",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "index 의 나가는 링크"
+              "title": "나가는 링크"
             }
           },
           {
@@ -142,13 +141,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "2025-developer-first-half-retrospect/index.mdx",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "index 의 개요"
+              "title": "개요"
             }
           }
         ],
@@ -168,12 +166,33 @@
       "templates:템플릿 삽입": false,
       "command-palette:명령어 팔레트 열기": false,
       "edit-mdx:New .mdx file": false,
-      "obsidian-shellcommands:Shell commands: Custom variables": false,
       "terminal:Open terminal": false
     }
   },
-  "active": "f5d47fcef8f57eb9",
+  "active": "84bf17e06e6d6db4",
   "lastOpenFiles": [
-    "2025-developer-first-half-retrospect/index.mdx"
+    "what-is-oklch/images/Lab-plus-LCH.png",
+    "what-is-oklch/images/cielab.png",
+    "what-is-oklch/images/스크린샷 2025-07-05 오전 10.57.30.png",
+    "what-is-oklch/index.mdx",
+    "what-is-oklch/images/HSL-cones-surface02-5step-72frames-30msss.gif",
+    "what-is-oklch/images/HSL_HSB.webp",
+    "what-is-oklch/images/saturation-problem.png",
+    "what-is-oklch/images/diff-lightness-between-yellow-and-blue.png",
+    "vite-6-migration/index.mdx",
+    "what-is-oklch/images/rgb-color-space.png",
+    "what-is-oklch/images/Photoreceptor-Cell.jpg",
+    "what-is-oklch/images/oklch-blue-2.png",
+    "what-is-oklch/images/oklch-blue-1.png",
+    "2025-developer-first-half-retrospect/index.mdx",
+    "what-is-oklch/images",
+    "template/index.md",
+    "template/images",
+    "how-does-v8-array-sort-work/index.mdx",
+    "algorithm-0-begin/index.mdx",
+    "무제.md",
+    "template",
+    "oklch-and-color-mix/Oklch 와 Color-mix.md",
+    "what-is-oklch"
   ]
 }
