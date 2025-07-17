@@ -1,3 +1,0 @@
-function mergeSort(inputs, start, end, target) {
-  // ...
-}

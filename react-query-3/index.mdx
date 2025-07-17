@@ -1,0 +1,172 @@
+---
+title: React Query Render Optimizations 번역
+published: 2025-06-30T21:57:00
+modified: 2025-06-30T21:58:00
+slug: translation-React-Query-Render Optimizations
+image:
+draft: true
+tags:
+  - ReactQuery
+summary:
+---
+원본: https://tkdodo.eu/blog/react-query-render-optimizations
+
+---
+> **면책 조항**
+>
+> 랜더링 최적화는 어떤 앱에서든지 필수는 아닙니다. 리액트 쿼리는 이미 좋은 최적화와 기본 옵션이 특별한 수정 없이도 잘 적용되어 있습니다. 그리고 대부분의 경우에 이 이상의 최적화는 필요하지 않을 것 입니다. "불필요한 리랜더"라는 주제에는 보통 사람들의 이목을 끄는 경향이 있기에 이 주제를 다루기로 결정했습니다. 하지만 다시 한번 강조하지만, 일반적으로, 대부분의 앱들에서 랜더링 최적화는 당신의 생각만큼 문제가 되지 않을 것입니다. 리랜더는 좋은 겁니다. 리랜더는 당신의 앱을 최신 상태로 만들어 줍니다. 저는 기꺼이 '렌더링되어야 할 것이 누락된'상황보다는 '불필요한 리랜더링'을 하는 상황을 선택할 것입니다.
+
+나는 Part2(React Query Data Transformations)에서 select 옵션을 설명하며 이미 랜더링 최적화에 대해 조금 언급했다. 하지만, "왜 리액트 쿼리가 데이터 변경도 없는데 내 컴포넌트를 2번이나 리랜더링 시키나요?"라는 질문은 아마도 내가 가장 많이 답해야 했던 질문일 것이다. (v2문서는 어디서 찾을 수 있나요?라는 질문을 제외하고 말이다.) 그래서, 이 질문을 깊이 있게 설명해보겠다.
+
+## isFetching 변경
+나는 마지막 예제에서 todos의 갯수가 변한다면 이 컴포넌트가 한번 리랜더링한다고 설명했었다. 이는 온전한 사실이 아니다.
+```ts
+export const useTodosQuery = (select) =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    select,
+  })
+export const useTodosCount = () =>
+  useTodosQuery((data) => data.length)
+
+function TodosCount() {
+  const todosCount = useTodosCount()
+
+  return <div>{todosCount.data}</div>
+}
+```
+백그라운드 리패치가 일어날 때마다 이 컴포넌트는 다음 쿼리 정보로 2번 리랜더링을 일으킬 것이다.
+
+```ts
+{ status: 'success', data: 2, isFetching: true }
+{ status: 'success', data: 2, isFetching: false }
+```
+이는 리액트 쿼리가 다양한 메타 정보를 반환하며 그 중에 `isFetching`도 포함되어 있기 때문이다. 이 플래그값은 요청이 진행중일 때 true가 된다. 이건 배경 로딩 인디케이터(background loading indicator)를 보여주고 싶을 때 꽤 유용하다. 하지만 이건 그런걸 보여주지 않는 유저에게는 살짝 불필요해보일 수 있다.
+## notifyOnChangeProps
+이 케이스에서, 리액트 쿼리는 `notifyOnChangeProps`라는 옵션을 제공한다. 이 옵션은 옵저버별로 설정할 수 있으며, 리액트 쿼리에게 "제시된 props가 하나라도 바뀔 때만 옵저버에게 변경을 알려라"라고 지시한다. 이 옵션을 `['data']`로 지정하는 것을 통해 앞서본 버전을 최적화할 수 있다.
+
+```ts
+export const useTodosQuery = (select, notifyOnChangeProps) =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    select,
+    notifyOnChangeProps,
+  })
+export const useTodosCount = () =>
+  useTodosQuery((data) => data.length, ['data'])
+```
+이 예제가 실제로 동작하는 것은문서의 [optimistic-updates-typescript](https://github.com/TanStack/query/blob/9023b0d1f01567161a8c13da5d8d551a324d6c23/examples/optimistic-updates-typescript/pages/index.tsx#L35-L48)를 통해 확인할 수 있다.
+
+## sync 상태로 유지하기
+앞선 코드는 잘 동작하지만, 이는 쉽게 동기화를 깨뜨릴 수 있다. `error`에도 반응하게 만들고 싶다면 어떻게 해야하는가? 혹은 `isLoading`플래그를 쓰기 시작했다면? 우리는 `notifyOnChangeProps`에 우리가 실제 컴포넌트에서 사용하는 필드 리스트를 반영해줘야한다. 반영하는 것을 까먹었고, `data` 속성만 감시하게 된다면, 그리고 그 상태로 `error`를 가져와 화면에 반영한다면? 우리의 컴포넌트는 error의 상태가 바뀌었다고 해도 리랜더링하지 않을 것이다. 이것은 우리의 커스텀 훅에 하드코딩 된 경우 문제를 일으킬 수 있다. 왜냐하면 훅은 스스로 어느 컴포넌트에서 쓰이는지 알 수 없기 때문이다.
+
+```ts
+export const useTodosCount = () =>
+  useTodosQuery((data) => data.length, ['data'])
+
+function TodosCount() {
+  // 🚨 we are using error,
+  // but we are not getting notified if error changes!
+  const { error, data } = useTodosCount()
+
+  return (
+    <div>
+      {error ? error : null}
+      {data ? data : null}
+    </div>
+  )
+}
+```
+내가 시작하면서 면책조항에서 언급했듯, 이런 경우는 차라리 가끔 불필요한 리랜더링을 하는게 낫다. 물론, 커스텀 훅에서 옵션을 받게 할 수 있다. 하지만 이 방법은 꽤 수동적이고 상투적으로 느껴진다. 이를 자동으로 처리할 방법이 없을까? 짜잔, 있다.
+
+## Tracked Queries
+나는 이 기능을 꽤 자랑스럽게 여긴다. 내가 처음으로 이 라이브러리에 메이저 컨트리뷰션을 올린 기능이기 때문이다.  `notifyOnChangeProps`를 `'tracked'`로 설정하면 리액트 쿼리는 랜더링에 사용된 필드만 추적할 것이다. 그리고 이를 활용해 리랜더링할 목록들을 계산한다. 이것은 앞서 수동적으로 추적할 리스트를 명시하는 것과 완전히 동일한 방법으로 최적화한다. 이 옵션은 모든 쿼리에서 동작하도록 설정할수도 있다.
+
+```ts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      notifyOnChangeProps: 'tracked',
+    },
+  },
+})
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Example />
+    </QueryClientProvider>
+  )
+}
+```
+이로써, 당신은 리랜더에 대해 신경쓰지 않게 되었다. 물론 사용되는 값들을 추적하는 것은 조금 오버헤드가 있기에 이 기능을 현명하게 사용하길 바란다. 또한 tracked queries에는 일부 제약이 있는데 이것이 이 기능이 옵션인 이유이다.
+
+- 만약 object spread 문법을 사용한다면 모든 필드를 사용하는 것으로 간주한다. 일반적인 구조분해는 괜찮다.
+```ts
+// 🚨 will track all fields
+const { isLoading, ...queryInfo } = useQuery(...)
+
+// ✅ this is totally fine
+const { isLoading, data } = useQuery(...)
+```
+- Tracked queries는 랜더링하는 동안만 동작한다. 만약 useEffect에서 필드를 참조한다면 그 필드는 추적대상으로 여기지 않는다. useEffect는 의존성 배열을 갖기에 이런 경우가 흔히 발생하진 않을 거라 생각한다.
+```ts
+const queryInfo = useQuery(...)
+
+// 🚨 will not corectly track data
+React.useEffect(() => {
+    console.log(queryInfo.data)
+})
+
+// ✅ fine because the dependency array is accessed during render
+React.useEffect(() => {
+    console.log(queryInfo.data)
+}, [queryInfo.data])
+```
+- Tracked queries는 매 리랜더마다 초기화되지 않는다. 따라서 한 필드를 추적하기 시작하면 옵저버의 생명주기 동안은 계속 추적하게 될 것이다.
+```ts
+const queryInfo = useQuery(...)
+
+if (someCondition()) {
+    // 🟡 we will track the data field if someCondition was true in any previous render cycle
+    return <div>{queryInfo.data}</div>
+}
+```
+> 수정됨
+>
+> v4부터는 tracked queries 옵션이 기본 설정되어 있기 때문에 이 기능을 사용하고 싶지 않다면 `notifyOnChangeProps: 'all'`로 설정해야한다.
+
+## structual sharing (구조적 공유)
+리액트 쿼리에 내장된 또 다른 주요 랜더링 최적화 기능은structural sharing 기능이다. 이 기능은 모든 레벨에서 `data`가 참조 동일성(=동일 포인터)을 유지하게 만들어준다. 예를 들어, 다음의 데이터 구조를 가지고 있다고 해보자.
+
+```ts
+[
+  { "id": 1, "name": "Learn React", "status": "active" },
+  { "id": 2, "name": "Learn React Query", "status": "todo" }
+]
+```
+이제 우리의 첫 번째 todo가 done이 되었다고 백그라운드 리패치가 실행됐다고 가정하겠다. 우리는 온전히 새 json을 백엔드로부터 전달받았다.
+```ts
+[
+-  { "id": 1, "name": "Learn React", "status": "active" },
++  { "id": 1, "name": "Learn React", "status": "done" },
+  { "id": 2, "name": "Learn React Query", "status": "todo" }
+]
+```
+이제 리액트 쿼리는 이전 상태와 새 상태의 비교해 가능하면 이전 상태의 것들을 남기려고 시도한다. 우리의 예제에서 todos 배열은 todo가 바뀌었기 때문에 새 배열이 된다. id가 1인 객체도 마찬가지로 새 객체가 될 것이다. 하지만 id가 2인 객체는 이전 상태와 동일하기 때문에 얕은 복사를 수행하고, 같은 참조를 유지할 것이다.
+
+이 기능은 selector를 이용한 부분 구독을 사용할 때 꽤나 유용하다.
+
+```ts
+// ✅ will only re-render if _something_ within todo with id:2 changes
+// thanks to structural sharing
+const { data } = useTodo(2)
+```
+앞서 언급했듯, selector의 structual sharing는 2번 이뤄진다. 한번은 `queryFn`이 반환한 결과에 변경된 것이 있는지 판단하기 위해 수행하고, 그 다음은 Selector 함수의 반환값에 대해 structual sharing를 수행한다.
+
+역주) structual sharing(구조적 공유)란 표현이 어색한데, 이전 상태와 비교해 최대한 같은 상태는 같은 포인터를 유지하는 일련의 과정이라 해석하면 됩니다.
+
+일부 인스턴스에서, 특히 아주 큰 데이터셋을 가진 경우 structual sharing은 보틀넥이 될 수 있다. 이 작업은 또한 json 시리얼라이즈가 가능한 데이터에서만 동작한다. 만약 이 최적화가 필요 없다면 `structuralSharing: false`를 설정하면 된다.
+
+[replaceEqualDeep](https://github.com/TanStack/query/blob/80cecef22c3e088d6cd9f8fbc5cd9e2c0aab962f/src/core/tests/utils.test.tsx#L97-L304) 테스트 코드를 한번 확인해보는 것이 내부적으로 어떤 동작을 하는지 이해하기 좋을 것이다.

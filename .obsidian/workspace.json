@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "eca15221d50e6994",
+        "id": "fb329e89f730378e",
         "type": "tabs",
         "children": [
           {
-            "id": "467fb40d54ed400b",
+            "id": "6201c7ae3534987a",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "a-universally-unique-identifier/index.mdx",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "새 탭"
+              "title": "index"
             }
           }
         ]
@@ -164,10 +168,23 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "467fb40d54ed400b",
+  "active": "6201c7ae3534987a",
   "lastOpenFiles": [
-    "Untitled.mdx",
-    "what-is-oklch/index.mdx",
+    "react-query-5/index.mdx",
+    "react-query-4/index.mdx",
+    "react-query-3/index.mdx",
+    "react-query-2/index.mdx",
+    "react-query-1/index.mdx",
+    "react-query-5",
+    "a-universally-unique-identifier/index.mdx",
+    "2024-developer-retrospect-2/index.mdx",
+    "2024-developer-retrospect-3/index.mdx",
+    "how-does-v8-array-sort-work/index.mdx",
+    "react-query-4",
+    "react-query-2/index.mdx.md",
+    "react-query-1/index.mdx.md",
+    "무제.md",
+    "_template/index.md",
     "what-is-oklch/images/Lab-plus-LCH.png",
     "what-is-oklch/images/cielab.png",
     "what-is-oklch/images/스크린샷 2025-07-05 오전 10.57.30.png",
@@ -175,19 +192,10 @@
     "what-is-oklch/images/HSL_HSB.webp",
     "what-is-oklch/images/saturation-problem.png",
     "what-is-oklch/images/diff-lightness-between-yellow-and-blue.png",
-    "vite-6-migration/index.mdx",
     "what-is-oklch/images/rgb-color-space.png",
     "what-is-oklch/images/Photoreceptor-Cell.jpg",
     "what-is-oklch/images/oklch-blue-2.png",
-    "2025-developer-first-half-retrospect/index.mdx",
-    "what-is-oklch/images",
     "template/index.md",
-    "template/images",
-    "how-does-v8-array-sort-work/index.mdx",
-    "algorithm-0-begin/index.mdx",
-    "무제.md",
-    "template",
-    "oklch-and-color-mix/Oklch 와 Color-mix.md",
-    "what-is-oklch"
+    "oklch-and-color-mix/Oklch 와 Color-mix.md"
   ]
 }

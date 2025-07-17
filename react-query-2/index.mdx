@@ -1,0 +1,190 @@
+---
+title: React Query Data Transformations 번역
+published: 2025-06-30T21:57:00
+modified: 2025-06-30T21:58:00
+slug: translation-React-Query-Data-Transformations
+image:
+draft: true
+tags:
+  - ReactQuery
+summary:
+---
+원본: https://tkdodo.eu/blog/react-query-data-transformations
+
+---
+"react-query에 대한 나의 생각" 파트 2에 온 것을 환영한다. 라이브러리와 그 주변의 커뮤니티에 더욱 더 관여하게 되었기 때문에, 사람들이 자주 물어보는 질문들의 패턴을 더 많이 관찰하게 되었다. 최초에 나는 이 것들을 하나의 긴 아티클로 풀어내려 했으나, 곧 이것들을 관리 가능한 조각들로 분리하기로 결정했다. 그 중 첫번째는 꽤 자주, 그리고 중요한 작업에 대한 것이다. 바로 Data Transformation이다.
+
+## Data Transformation
+한번 보자. 대부분의 사람들은 GraphQL을 쓰지 않는다. 만약 사용하고 있다면, 당신은 매우 행복할 것이다. 왜냐하면 당신은 원하는 형태로 데이터를 요청할 수 있는 럭셔리한 방법을 갖췄기 때문이다.
+
+만약, REST API를 그대로 사용하고 있다면 당신은 백엔드의 반환 값을 그대로 사용해야하는 제약에 걸린다. 그래서 react-query를 사용한다면 어떻게, 그리고 어디서 데이터를 변환하는 것이 가장 좋은가? 소프트웨어 개발에서 통용되는 대답이 여기에서도 통용될 것 같다.
+
+> It depends
+> (그건 경우에 따라 달라)
+> - 모든 개발자
+
+여기 서로 다른 장단점을 가진 3+1개의 데이터 변환 접근법이 있다.
+
+## 0. 백엔드에서 변환한다
+그럴 여유가 된다면, 이건 내가 가장 선호하는 접근법이다. 만약 백엔드가 우리가 원하는 형태 그대로 데이터를 내려줄 수 있다면 우리가 할 게 더 없다. Public REST API를 사용하는 경우와 같이 많은 경우 이 방법은 비현실적으로 들리긴 하지만, 엔터프라이즈 앱에선 충분히 달성할 수 있는 방법이기도 하다. 만약 백엔드를 온전히 컨트롤할 수 있고, 엔드포인트가 당신이 원하는 그대로 데이터를 반환하게 할 수 있다면, 기대하는 그대로 데이터를 전달하기를 선호한다.
+
+🟢 장점
+- 프론트엔드에서 뭘 하지 않아도 된다
+🔴 단점
+- 항상 가능한 방법은 아니다.
+
+## 1. queryFn에서 변환한다
+`queryFn`은 `useQuery`에 전달하는 함수이다. 이 함수는 Promise를 반환해야하며, 그 결과는 쿼리 캐시에 저장된다. 하지만 이 함수가 백엔드에서 전달한 데이터를 그대로 반환할 필요는 없다. 당신은 그 데이터가 반환되고 저장되기 전에 변환할 수 있다.
+```ts
+const fetchTodos = async (): Promise<Todos> => {
+  const response = await axios.get('todos')
+  const data: Todos = response.data
+
+  return data.map((todo) => todo.name.toUpperCase()) // <- 이런식으로 변환
+}
+
+export const useTodosQuery = () =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+  })
+```
+
+프론트엔드에선 "마치 백엔드에서 이렇게 데이터가 온 것처럼" 데이터를 사용할 수 있다. 코드 어디에서도 upper-case가 아닌 todo 이름이 사용되지 않을 것이다. 당신은 또한 원본 구조에 접근하지 않아도 된다. 만약 react-query-devtools를 보더라도, 똑같이 변형된 구조를 보게 될 것이다. 만약 네트워크 기록을 보게되면 원본 구조를 볼 수 있다. 이는 햇갈리게할 수 있으니 기억해둬라.
+
+또한, 이 경우 react-query가 해줄 수 있는 최적화는 없다. 매번 패치가 실행될 때 데이터 변환도 같이 일어날 것이다. 만약 그 변환이 무거운 작업이라면 대안을 고려해라. 일부 회사들은 공유된(Shared) API 레이어를 두어 데이터 패치를 추상화하기도 한다. 따라서 데이터 변환을 queryFn에서 수행하지 못할 수도 있다.
+
+🟢 장점
+- co-location측면에서, backend와 가까이에 위치한다.
+🟡 중립
+- 변환된 구조가 캐시에 저장된다. 따라서 원본 구조에 접근하지 못할 것이다.
+🔴 단점
+- 모든 패치마다 데이터 변환이 수행된다.
+- 만약 자유롭게 수정할 수 없는 공유된 API 레이어가 있다면 이 방식을 사용할 수 없다.
+
+역주) 공유된 API 레이어가 있을 때 이 접근법을 쓸 수 없다는 말은, 아키텍처상 이미 그 역할을 하는 레이어가 있기 때문에 queryFn에서 다시 데이터를 변환하는 것이 바람직하지 않다는 말을 하는 것 같습니다.
+
+## 2. 랜더 함수에서 변환한다
+Part 1에서 조언하였듯, 당신이 리액트 쿼리를 담은 커스텀 훅을 만들었다면 여기서 쉽게 데이터를 변환할 수 있다.
+
+```ts
+const fetchTodos = async (): Promise<Todos> => {
+  const response = await axios.get('todos')
+  return response.data
+}
+
+export const useTodosQuery = () => {
+  const queryInfo = useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+  })
+
+  return {
+    ...queryInfo,
+    data: queryInfo.data?.map((todo) => todo.name.toUpperCase()),
+  }
+}
+```
+현재로서는, 이 방법은 매 패치마다 데이터를 변환 하지 않지만, 매 랜더링마다 데이터 변환이 일어난다. (심지어 데이터 패치와 관련되어 있지 않더라도 말이다) 이건 문제가 되지 않을 수 있지만, 만약 문제가 된다면 `useMemo`를 사용해서 최적화할 수 있다. 당신의 의존성들이 가증한 좁게 정의되도록 주의하라. `queryInfo` 내부의 `data`는 실제로 데이터가 변경되지 않는 한 참조가 바뀌지 않는다. (이 경우, 당신은 당신의 데이터 변환을 다시 수행하고 싶을 것이다) 하지만 `queryInfo`자체는 그렇지 않다. `queryInfo`를 의존성에 추가하면, 데이터 변환은 매 랜더링마다 발생할 것이다.
+
+```ts
+// memo-dependencies
+export const useTodosQuery = () => {
+  const queryInfo = useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos
+  })
+
+  return {
+    ...queryInfo,
+    // 🚨 don't do this - the useMemo does nothing at all here!
+    data: React.useMemo(
+      () => queryInfo.data?.map((todo) => todo.name.toUpperCase()),
+      [queryInfo]
+    ),
+
+    // ✅ correctly memoizes by queryInfo.data
+    data: React.useMemo(
+      () => queryInfo.data?.map((todo) => todo.name.toUpperCase()),
+      [queryInfo.data]
+    ),
+  }
+}
+```
+특히 당신이 커스텀 훅에 추가적인 로직을 추가해 데이터 변환과 결합해두었다면, 이건 좋은 선택지이다. 데이터가 undefined가 될 수 있음에 주의해라. 옵셔널 체이닝을 사용해야할 것이다.
+
+> Update
+> React Query의 tracked queries 옵션이 v4부터 default가 되었기 때문에 `...queryInfo`로 스프레드하는 것이 더 이상 추천되지 않는다. 이것이 모든 프로퍼티에 대한 getter들을 호출하기 때문이다.
+
+🟢 장점
+- useMemo를 통해 최적화할 수 있다.
+🟡 중립
+- devtools에서 동일한 구조를 띄워주지 않을 것이다.
+🔴 단점
+- 코드가 살짝 어려워질 수 있다.
+- 데이터가 undefined일 수 있다.
+- `tracked queries` 옵션과 함께 사용하는 것을 권장하지 않는다.
+	- 역주) tracked queries 옵션은 실제 사용되지 않는 property의 변경은 무시해 랜더링을 최적화하는 옵션입니다. v4부터 기본 설정되므로 `{...queryInfo}`를 커스텀훅이 반환하면 모든 property를 구독하는 샘이 되어 해당 옵션이 의미없어지기 때문에 같이 사용하는 것을 권장하지 않는 것 입니다.
+
+## 3. select 옵션에서 변환하기
+v3에 소개된 빌트인 selector로 데이터 변환에 사용될 수 있다.
+
+```ts
+export const useTodosQuery = () =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    select: (data) => data.map((todo) => todo.name.toUpperCase()),
+  })
+```
+select 옵션은 `data`가 존재할 때만 호출되기 때문에 `undefined`를 고려하지 않아도 된다. 앞서 나온 것과 같은 Selector는 인라인 함수라 매번 참조가 바뀔 것이므로 매 랜더링마다 새로 호출 될 것이다. 만약 변환 과정이 비싸다면, useCallback 혹은 정적인 함수로 분리해 최적화할 수 있다.
+
+```ts
+const transformTodoNames = (data: Todos) =>
+  data.map((todo) => todo.name.toUpperCase())
+
+export const useTodosQuery = () =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    // ✅ uses a stable function reference
+    select: transformTodoNames,
+  })
+
+export const useTodosQuery = () =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    // ✅ memoizes with useCallback
+    select: React.useCallback(
+      (data: Todos) => data.map((todo) => todo.name.toUpperCase()),
+      []
+    ),
+  })
+```
+게다가, select 옵션은 데이터의 일부분에 대해서만 구독하는데 사용할 수 있다. 이는 이 접근법을 독특하게 만든다. 다음 예제를 보자.
+
+```ts
+export const useTodosQuery = (select) =>
+  useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+    select,
+  })
+
+export const useTodosCount = () =>
+  useTodosQuery((data) => data.length)
+export const useTodo = (id) =>
+  useTodosQuery((data) => data.find((todo) => todo.id === id))
+```
+
+이 예제에서, 우리는 커스텀 selector를 `useTodosQuery`에 전달해 API 같은 useSelector를 만들었다. 이 커스텀 훅은 여전히 이전과 같이 동작할 것이기에, `select`를 props로 전달하지 않는다면 전체 상태를 그대로 반환할 것이다.
+
+하지만 selector를 전달한다면, 당신은 selector 함수의 결과만을 구독하게 된다. 이는 꽤 강력하다. 왜냐하면 만약 우리가 todo의 이름을 변경한다 해도, `useTodosCount`를 통해 갯수를 구독하는 컴포넌트는 리랜더되지 않을 것이기 때문이다. 갯수는 변하지 않았따. 따라서 react-query는 옵저버에게 변경을 알리지 않는다. (이 예제에선 살짝 단순하게 표현이 되었고, 기술적으로 온전히 사실은 아님을 참고하라. 이 부분은 Part3에서 랜더링 최적화의 디테일에 대해 이야기하며 다루겠다.)
+
+🟢 장점
+- 최고의 최적화
+- 부분 구독이 가능해진다.
+🟡 중립
+- 모든 옵저버에서 서로 다른 데이터 구조를 가질 수 있다.
+- 구조 공유가 두번 수행된다. (이는 Part3에서 다루겠다)

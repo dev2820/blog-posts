@@ -1,0 +1,26 @@
+---
+title: Testing React Query 번역
+published: 2025-07-17T10:48:00
+modified: 2025-07-17T10:48:00
+slug: translation-React-Query-Render Optimizations
+image: 
+draft: true
+tags:
+  - ReactQuery
+  - Translation
+summary:
+---
+원본: https://tkdodo.eu/blog/testing-react-query
+
+---
+React Query와 관련하여 테스트에 관련된 질문이 자주 올라오기 때문에 여기서 대답해보려 한다. 내 생각에 이런 질문이 자주 올라오는 것은 "똑똑한" 컴포넌트(container 컴포넌트라고도 불리는)를 테스트하는 것이 쉽지 않기 때문이라 생각한다. 훅의 등장과 함께 이런 분류는 더 이상 사용하지 않게 되었다. 이제는 임의의 컴포넌트 분리 혹은 props drilling보다 훅을 직접 사용하는 것을 권장한다.
+
+내 생각에 이것은 코드 가독성과 colocation측면에서 상당한 전진이다. 하지만 이제 우리는 "단순히 props" 외에 외부 의존성을 사용하는 컴포넌트들을 더 많이 갖게 되었다.
+
+그 의존성들은 `useContext`, `useSelector` 혹은 `useQuery`일지도 모른다.
+
+이러한 컴포넌트들은 엄밀히말해 더 이상 순수하지 않다. 다른 환경에서 호출될 때 다른 결과를 도출하기 때문이다. 이들을 테스트할때엔 이러한 주변 환경을 잘 설정해 생각한대로 동작하게 하는 것에 주의해야한다. 
+
+## 네트워크 요청 목킹
+
+
