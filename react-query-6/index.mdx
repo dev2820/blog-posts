@@ -256,5 +256,33 @@ function useGroup(id: number | undefined) {
 
 ## useInfiniteQuery
 
-대부분의 경우 `useInfiniteQuery`의 타입 작성은 `useQuery`와 다를게 없다. 한가지 주목할만한 '앗차'는 `pageParam`값이다. 이 값은 `queryFn`에 전달되며 `any`로 추론된다. 라이브러리에서 
+대부분의 경우 `useInfiniteQuery`의 타입 작성은 `useQuery`와 다를게 없다. 한가지 주목할만한 '앗차'는 `pageParam`값이다. 이 값은 `queryFn`에 전달되며 `any`로 추론된다. 물론 라이브러리에서 개선할 수도 있지만, 타입이 `any`인 한, 명시적으로 타입을 지정하는 것이 가장 좋다.
+```ts
+type GroupResponse = { next?: number; groups: Group[] }
+const queryInfo = useInfiniteQuery({
+  queryKey: ['groups'],
+  // ⚠️ explicitly type pageParam to override `any`
+  queryFn: ({
+    pageParam = 0,
+  }: {
+    pageParam: GroupResponse['next']
+  }) => fetchGroups(groups, pageParam),
+  getNextPageParam: (lastGroup) => lastGroup.next,
+})
+```
+
+만약 `fetchGroups`가 `GroupResponse`을 반환한다면, `lastGroup`은 잘 추론되고`pageParam`
+
+> 수정됨
+> 
+> 이 현상은 v5에서 `initialPageParam`을 명시할 수 있게 되면서 수정되었다. 
+> 
+> const queryInfo = useInfiniteQuery({
+  queryKey: ['groups'],
+  // ✅ typed correctly as number
+  queryFn: ({ pageParam }) =>
+    fetchGroups(groups, pageParam),
+  getNextPageParam: (lastGroup) => lastGroup.next,
+  initialPageParam: 0,
+})
 
