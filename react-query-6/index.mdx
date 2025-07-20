@@ -1,0 +1,248 @@
+---
+title: React Query and TypeScript 번역
+published: 2025-07-17T10:48:00
+modified: 2025-07-17T10:48:00
+slug: translation-of-React-Query-and-TypeScript
+image: 
+draft: true
+tags:
+  - ReactQuery
+  - Translation
+summary:
+---
+원본: https://tkdodo.eu/blog/react-query-and-type-script
+
+---
+타입스크립트는 프론트엔드에서 사실상 표준이 된 것 같다. 많은 개발자들이 라이브러리들이 타입스크립트로 작성되어있길 기대하거나 최소한 준수한 타입 정의을 지원하기를 기대한다. 나에게 있어, 타입스크립트로 작성된 라이브러리의  타입 정의가 곧 그 자체로 최고의 문서다. 타입 정의는 구현을 그대로 반영하고 있기 때문에 잘못 쓰여질 수 없다. 나는 종종 API 문서를 읽기 전에 타입 정의부터 보곤 한다.
+
+리액트 쿼리는 처음엔 자바스크립트로 작성되었고(v1) v2에서 타입스크립트로 다시 작성했다. 이것은 즉, 타입스크립트 사용자를 위한 타입 지원이 잘 되어있다는 뜻이다.
+
+그러나 타입스크립트를 사용하다보면 리액트 쿼리가 동적이면서 특정 방식을 강요하지 않는 특성 때문에 몇가지 '앗차'하는 순간이 있다. 지금부터 당신의 리액트 쿼리 경험을 향상시키기 위해 이러한 특징들을 하나하나 살펴보겠다.
+
+## Generics
+리액트 쿼리는 제너릭을 엄청 사용한다. 이는 리액트 쿼리가 직접 데이터 패치를 하지 않고 당신의 API가 무엇을 반환할지 알 수 없기 때문에 필수적이다.
+
+공식 문서의 타입스크립트 부분은 그리 자세하지 않고, `useQuery`를 쓸 때는 제네릭을 명시적으로 지정하라고 안내하고 있다.
+```ts
+function useGroups() {
+  return useQuery<Group[], Error>({
+    queryKey: ['groups'],
+    queryFn: fetchGroups,
+  })
+}
+```
+> 수정됨
+> 문서가 업데이트 되었고, 더 이상 이 패턴을 우선적으로 권장하지 않는다. 
+
+시간이 흘러, 리액트 쿼리는 더 많은 기능이 추가되었고, 때문에 `useQuery` 훅에 더 많은 제너릭을 추가했다. (이제 4개나 제너릭을 받는다) 앞서 보여준 코드는 동작하며, 우리가 만든 커스텀 훅의 `data`는 `Group[] | undefined`타입임을 보장한다. `error` 또한 `Error | undefined`타입임이 보장된다. 하지만 이 패턴은 더 복잡한 사용 예시에서 기대처럼 동작하지 않는다. 특히 다른 두 제너릭이 필요한 경우에 말이다.
+
+### 네 가지 Generic
+다음은 현재 `useQuery`훅의 정의이다.
+
+```ts
+export function useQuery<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey
+>
+```
+정말 많은 것들이 담겨있다. 하나씩 살펴보겠다.
+- `TQueryFnData`: `queryFn`의 반환값. 앞선 예제로 따지면 `Group[]`이다.
+- `TError`: `queryFn`에서 발생하는 에러 타입. 앞선 예제로 따지면 `Error`
+- `TData`: `data`속성이 최종적으로 갖게될 타입. 만약 `select`옵션을 사용하는 경우에만 필요하며, 그 이외의 경우엔 `queryFn`의 반환값과 동일할 것으로 간주한다.
+- `TQueryKey`: `queryKey`의 타입 `queryFn`에 전달될 `queryKey`를 사용하는 경우에 필요하다.
+
+보다시피, 모든 제너릭은 기본 값을 갖는다. 따라서 타입을 지정하지 않으면 타입스크립트는 해당 기본 타입을 대신 사용할 것이다. 이런 동작 방식은 자바스크립트의 기본 매개변수와 거의 동일하다.
+```ts
+function multiply(a, b = 2) {
+  return a * b
+}
+
+multiply(10) // ✅ 20
+multiply(10, 3) // ✅ 30
+```
+
+### 타입 추론
+타입스크립트는 스스로 값의 타입을 추론하도록 둘 때 가장 효과적이다. 이는 모든 타입을 일일이 타이핑할 필요가 없어서 코드를 더 쉽게 작성하게 만들어줄 뿐 아니라, 코드의 가독성도 높여준다. 대게 마치 코드가 자바스크립트처럼 보이게 만들 수도 있다. 타입 추론의 간단한 에시는 다음과 같다.
+```ts
+const num = Math.random() + 5 // ✅ `number`
+
+// 🚀 both greeting and the result of greet will be string
+function greet(greeting = 'ciao') {
+  return `${greeting}, ${getName()}`
+}
+```
+
+제너릭을 사용하면 쓰임에 따라 타입이 추론된다. 이건 정말 엄청나다. 제너릭이 될 타입을 직접 선언할수도 있지만, 대부분의 경우 그럴 필요가 없다.
+
+```ts
+function identity<T>(value: T): T {
+  return value
+}
+
+// 🚨 no need to provide the generic
+let result = identity<number>(23)
+
+// ⚠️ or to annotate the result
+let result: number = identity(23)
+
+// 😎 infers correctly to `string`
+let result = identity('react-query')
+```
+
+### Partial Type Argument Inference
+
+타입스크립트에 아직 이 기능이 없기 때문에, 하나의 제너릭을 제공하면 나머지 제너릭도 모두 작성해야한다. 하지만 리액트 쿼리의 제너릭에는 기본값이 있기 때문에, 이 기본값이 적용된다는 사실을 바로 알아차리지 못할 수 있다. 이 결과로 나타나는 에러 메세지는 꽤 치명적이다. 이것이 어떤 역효과를 내는지 예시를 한가지 보겠다.
+```ts
+function useGroupCount() {
+  return useQuery<Group[], Error>({
+    queryKey: ['groups'],
+    queryFn: fetchGroups,
+    select: (groups) => groups.length,
+    // 🚨 Type '(groups: Group[]) => number' is not assignable to type '(data: Group[]) => Group[]'.
+    // Type 'number' is not assignable to type 'Group[]'.ts(2322)
+  })
+}
+```
+우리가 세 번째 제너릭의 타입을 지정하지 않았기 때문에 기본값인 `Group[]`이 채워졌다. 하지만 `select` 함수는 `number`를 반환한다. 이를 해결할 가장 쉬운 방법은 세 번째 제너릭을 채우는 것이다.
+
+```ts
+function useGroupCount() {
+  // ✅ fixed it
+  return useQuery<Group[], Error, number>({
+    queryKey: ['groups'],
+    queryFn: fetchGroups,
+    select: (groups) => groups.length,
+  })
+}
+```
+Partial Type Argument Inference기능이 지원되지 않는한, 우리는 우리가 가진 것들로 일해야한다. 
+그래서 대안은 무엇이 있을까?
+
+### 모두 추론하게 만들기
+제너릭을 아에 제공하지 않으면 타입스크립트가 뭘 해야할지 알아내게 만들자. 이게 동작하기 위해선 `queryFn`이 반환 타입을 가지고 있어야한다. 물론, 명시된 반환 값 지정 없이 인라인 함수를 작성하면 반환값은 `any`가 될 것이다. `axios`혹은 `fetch`가 반환하는 타입이 그러하기 때문이다. 
+
+```ts
+function useGroups() {
+  // 🚨 data will be `any` here
+  return useQuery({
+    queryKey: ['groups'],
+    queryFn: () =>
+      axios.get('groups').then((response) => response.data),
+  })
+}
+```
+만약 당신이 (나처럼) 쿼리에서 API 계층이 분리되어있길 바란다면, 당신은 암묵적으로 any타입으로 추론되는 것을 피하기 위해 타입 정의를 추가해야한다. 그래야 리액트 쿼리가 나머지를 추론할 수 있을 것이다.
+
+이 접근법의 장점은 다음과 같다.
+- 제너릭 타입을 직접 명시할 필요가 없다.
+- 3,4번 제너릭이 필요한 경우에도 동작한다.
+- 향후 더 많은 제너릭이 추가되더라도 잘 작동할 것이다.
+- 코드가 덜 복잡하고 자바스크립트처럼 보인다.
+
+### 한편 에러는...?
+'에러는요?'라고 물어볼 수 있다. 기본적으로 제너릭 타입이 명시되지 않으면 에러는 `unknown`으로 추론될 것이다. 이는 마치 버그처럼 보인다. 왜 `Error`타입으로 추론하지 않는 거지? 하지만 이건 의도된 것으로 자바스크립트에선 어떤 것이든 throw할 수 있기 때문에 항상 `Error`타입이지 않은 것을 반영한 것이다.
+
+```js
+throw 5
+throw undefined
+throw Symbol('foo')
+```
+
+리액트 쿼리가 Promise를 반환하지 않는 함수는 신경쓰지 않으므로 그 함수가 어떤 에러 타입을 만들어낼지 알 수 없다. 따라서 `unknown`인게 맞다. 향후 타입스크립트가 여러 제너릭을 가진 함수를 호출할 때 일부 제너릭 타입의 명시를 생략할 수 있게 되면 이 문제를 더 잘 처리할 수 있겠지만, 현재로서는 오류를 처리해야 하면서도 제너릭을 직접 전달하고 싶지 않다면 `instanceof`체크로 타입을 좁힐 수 있다.
+```ts
+const groups = useGroups()
+
+if (groups.error) {
+  // 🚨 this doesn't work because: Object is of type 'unknown'.ts(2571)
+  return <div>An error occurred: {groups.error.message}</div>
+}
+
+// ✅ the instanceOf check narrows to type `Error`
+if (groups.error instanceof Error) {
+  return <div>An error occurred: {groups.error.message}</div>
+}
+```
+
+우리의 쿼리가 에러를 가지고 있는지 확인하기 위해선 확인하는 프로세스를 가져야하기 때문에, instanceof를 사용하는건 나쁘지 않은 아이디어이다. 이 방식은 런타임에서 에러에 메세지가 포함되어 있음도 보장해준다. 이것은 타입스크립트 4.4 릴리즈에 계획되어 있고, 타입스크립트 팀은 새로운 컴파일러 플래그 `useUnknownInCatchVariables`를 소개할 것이다. 이 플래그는 catch에 들어온 인자를 `any`대신 `unknown`으로 추론하도록 만들어줄 것이다.
+
+> 수정됨
+> v4부터 `Error`의 기본 타입은 `unknown`이 아닌 `Error`이 되었다. 이는 자바스크립트에서 어떤 것이든 throw할 수 있기에 엄밀히 말하면 틀리지만, 대게의 경우 Error(혹은 그 Error를 상속하는 클래스)가 throw되기 때문이다. 이 변경점은 타입스크립트를 사용하는 대부분의 경우 에러 필드를 더 쉽게 다룰 수 있게 만들어준다.
+> 
+> 추가적으로, React Query는 module augmentation을 통해 글로벌 에러를 등록할 수 있다. 
+> 여기서 defaultError: unknown 설정을 통해 v4의 동작을 되돌릴 수 있다. 
+> declare module '@tanstack/react-query' {
+    interface Register {
+      defaultError: AxiosError
+    }
+  }
+
+## Type Narrowing
+나는 리액트 쿼리를 사용할 때 드물게  구조 분해를 사용한다. 첫째로, `data` 그리고 `error`같은 이름은 너무 흔하다. (의도적으로 그러하게 되어있다.) 따라서 당신은 그 속성들의 이름을 바꿀 것이다. 전체 객체를 들고 있는 것은 그 데이터가 무슨 데이터인지, 혹은 어디서 온 에러인지 맥락을 알 수 있게 한다. 이건 게다가 상태 필드 혹은 boolean 상태값을 사용했을 때 타입스크립트가 Type Narrow를 하는데 도움이 된다.  
+```ts
+const { data, isSuccess } = useGroups()
+if (isSuccess) {
+  // 🚨 data will still be `Group[] | undefined` here
+}
+
+const groupsQuery = useGroups()
+if (groupsQuery.isSuccess) {
+  // ✅ groupsQuery.data will now be `Group[]`
+}
+```
+리액트 쿼리에서 해주는게 아니다. 타입스크립트가 어떻게 동작하는지에 대한 것이다. 
+> 수정됨
+> 
+> Typescript 4.6에서부터 구조 분해에 대해서도 타입을 추론하게 되어 앞선 예제도 잘 동작하게 되었다. 따라서 이것은 더 이상 문제가 되지 않는다.
+
+## enabled 옵션으로 타입 안전성 챙기기
+나는 처음부터 `enabled`옵션을 애용해왔지만, 이 옵션을 의존성 쿼리에 사용하면 특정 파라미터가 아직 사용 불가능한 동안 쿼리를 비활성화하려 할 때는 타입에서 약간 까다로울 수 있다.
+
+```ts
+function fetchGroup(id: number): Promise<Group> {
+  return axios.get(`group/${id}`).then((response) => response.data)
+}
+
+function useGroup(id: number | undefined) {
+  return useQuery({
+    queryKey: ['group', id],
+    queryFn: () => fetchGroup(id),
+    enabled: Boolean(id),
+  })
+  // 🚨 Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  //  Type 'undefined' is not assignable to type 'number'.ts(2345)
+}
+```
+
+기술적으로는, 타입스크립트가 제대로 동작하는게 맞다. `id`는 `undefined`가 될 수 있다. `enabled` 옵션은 type narrowing에 대해 어떤 것도 해주는 것이 없다. 또한, `enabled` 옵션을 우회할 방법이 존재한다. 예를 들어 `useQuery`가 반환하는 `refetch`를 호출할 수 있다. 이 경우 `id`는 `undefined`가 될 것이다.
+
+당신이 non-null assertion operator(= !)를 사용하고 싶지 않다면, 가장 좋은 방법은 `id`가 `undefined`일 수 있다는 점을 받아들이고 `queryFn`내에서 id가 `undefined`라면 Promise를 `reject`하는 것이다. 이는 약간 중복되지만 명확하고 안전하다.
+```ts
+function fetchGroup(id: number | undefined): Promise<Group> {
+  // ✅ check id at runtime because it can be `undefined`
+  return typeof id === 'undefined'
+    ? Promise.reject(new Error('Invalid id'))
+    : axios.get(`group/${id}`).then((response) => response.data)
+}
+
+function useGroup(id: number | undefined) {
+  return useQuery({
+    queryKey: ['group', id],
+    queryFn: () => fetchGroup(id),
+    enabled: Boolean(id),
+  })
+}
+```
+> v5.25부터 `skipToken`함수가 지원되어 queryFn에 타입안전성을 제공하는 동시에 쿼리를 비활성화할 수 있다.
+> 
+> import { useQuery, skipToken } from '@tanstack/query'
+  function useGroup(id: number | undefined) {
+  return useQuery({
+    queryKey: ['group', id],
+    queryFn: id ? () => fetchGroup(id) : skipToken,
+  })
+  }
+
+## Optimistic Updates
+

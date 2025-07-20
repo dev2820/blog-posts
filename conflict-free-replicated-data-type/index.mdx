@@ -1,0 +1,37 @@
+---
+title: 온라인 동시편집은 어떻게 가능한가? - CRDT 알고리즘에 대해 알아보자
+published: 2025-07-20T10:48:00
+modified: 2025-07-20T10:48:00
+slug: conflict-free-repliacted-data-type
+image: 
+draft: true
+tags:
+  - Algorithm
+  - CRDT
+  - CS
+summary:
+---
+## Figma, Notion, Google Docs는 충돌을 어떻게 다루는가?
+
+1. 온라인 에디터 서비스들은 모두 지원하는 동시 편집 기능
+2. 동시에 같은 내용을 서로 다르게 작성하면 어떻게 되는기? (예제), (나는 싸우고, 너는 기록한다 짤방)
+3. 놀랍게도 이 서비스들은 그런 문제는 겪지 않는다.
+4. 그것은 CRDT 덕분이다.
+
+## CRDT 알고리즘이란?
+1. CRDT의 용어 풀이
+2. 해석
+3. 용도 (다양한 서비스에서의 활용 방법)
+
+CRDT는 Conflict-free Replicated Data Type, 풀어쓰면 충돌 없는(Conflict-free) Replicated(복제된) Data Type(자료구조)이다. 
+
+말 그대로 여러 사용자가 동시에 같은 데이터를 편집하더라도 데이터 충돌이 방지하고 모두가 같은 결과를 갖도록 보장하는 자료구조이자 알고리즘이다. 
+
+그렇다면 이 알고리즘은 어디에 사용할 수 있을까?
+
+
+## CRDT의 원리
+1. 수학적 원리
+2. 자료구조 설명 및 알고리즘
+3. 예제
+
