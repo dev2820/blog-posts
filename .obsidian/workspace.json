@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2025-retrospect-2/index.mdx",
+                "file": "tidy-first-review/index.mdx",
                 "mode": "source",
                 "source": false
               },
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 375.5,
-    "collapsed": true
+    "width": 375.5
   },
   "right": {
     "id": "c404e29d74e12205",
@@ -173,6 +172,9 @@
   "active": "ea37a3fef8ef2235",
   "lastOpenFiles": [
     "tidy-first-review/index.md",
+    "tidy-first-review/index.mdx",
+    "tidy-first-review/Untitled.mdx",
+    "2025-retrospect-2/index.mdx",
     "README.md",
     "Pasted image 20251113112917.png",
     "Pasted image 20251113112914.png",
@@ -182,7 +184,6 @@
     "무제 3.base",
     "무제 4.base",
     "2025-retrospect/index.mdx",
-    "2025-retrospect-2/index.mdx",
     "2025-retrospect/images/figure.jpg",
     "2025-retrospect/images/aws.jpg",
     "2025-retrospect/images/google.jpg",
@@ -192,8 +193,6 @@
     "2025-retrospect-2/images/variables-for-i18n-2.png",
     "2025-retrospect-2/images/variables-for-i18n.png",
     "2025-developer-first-half-retrospect/index.mdx",
-    "2024-developer-retrospect-2/index.mdx",
-    "2024-developer-retrospect/index.mdx",
     "why-we-need-computer-science/index.md",
     "무제.md",
     "_template/index.md",
