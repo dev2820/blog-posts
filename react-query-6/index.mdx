@@ -271,7 +271,7 @@ const queryInfo = useInfiniteQuery({
 })
 ```
 
-만약 `fetchGroups`가 `GroupResponse`을 반환한다면, `lastGroup`은 잘 추론되고`pageParam`
+만약 `fetchGroups`가 `GroupResponse`을 반환한다면, `lastGroup`은 잘 추론되고 우리는 그 타입을 그대로 `pageParam`로 쓸 수 있다.
 
 > 수정됨
 > 
@@ -286,3 +286,39 @@ const queryInfo = useInfiniteQuery({
   initialPageParam: 0,
 })
 
+## default query function의 타입
+나는 개인적으로 defaultQueryFn을 쓰지는 않지만, 많은 사람들이 이걸 쓰고 있는 것으로 알고있다. `queryKey`로 전달한 값을 그대로 요청 URL에 사용하는 것은 깔끔한 방법이다. `queryClient`를 생성할 때 그 함수를 집어넣으면, 전달된 `QueryFunctionContext`의 타입도 추론될 것이다. 타입스크립트는 인라인으로 작업할 때 더 훌륭하다 :)
+
+```ts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: async ({ queryKey: [url] }) => {
+        const { data } = await axios.get(`${baseUrl}/${url}`)
+        return data
+      },
+    },
+  },
+})
+```
+이 코드는 잘 동작한다. 하지만 `url`은 `unknown`으로 추론될 것이다. 왜냐하면 `queryKey`전체는 `unknown[]` 이기 때문이다. queryClient를 생성하는 시점에 `useQuery`가 어떤 queryKey 구성으로 호출될지 아는 것은 별로 의미가 없다. 이건 이 동적인 기능의 특성이다. 나쁜건 아니지만, 이 때문에 당신은 방어적으로 일해야하고, 런타임 타입 체크를 작성해야한다. 예시:
+```ts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: async ({ queryKey: [url] }) => {
+        // ✅ narrow the type of url to string
+        // so that we can work with it
+        if (typeof url === 'string') {
+          const { data } = await axios.get(
+            `${baseUrl}/${url.toLowerCase()}`
+          )
+          return data
+        }
+        throw new Error('Invalid QueryKey')
+      },
+    },
+  },
+})
+```
+내 생각에 이건 `unknown`이 `any`보다 좋은 이유를 잘 보여주는 것 같다. `unknown`은 내 최애 타입이 되었다. 

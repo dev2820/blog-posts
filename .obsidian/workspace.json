@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "bc9465bf30a5c73b",
+        "id": "f1cae7f13cc56b78",
         "type": "tabs",
         "children": [
           {
-            "id": "1c694a7d51daa788",
+            "id": "ea37a3fef8ef2235",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "react-query-6/index.mdx",
+                "file": "2025-retrospect-2/index.mdx",
                 "mode": "source",
                 "source": false
               },
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 375.5,
+    "collapsed": true
   },
   "right": {
     "id": "c404e29d74e12205",
@@ -158,6 +159,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:새 베이스 생성하기": false,
       "switcher:빠른 전환기 열기": false,
       "graph:그래프 뷰 열기": false,
       "canvas:새 캔버스 만들기": false,
@@ -168,34 +170,36 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "1c694a7d51daa788",
+  "active": "ea37a3fef8ef2235",
   "lastOpenFiles": [
-    "tips-for-creating-modal/images/scrollbar.png",
-    "tips-for-creating-modal/images/scrollbar-wrong.png",
-    "tips-for-creating-modal/images/normal-dialog.png",
-    "tips-for-creating-modal/images/non-modal-dialog.png",
-    "tips-for-creating-modal/images/focus.gif",
-    "tips-for-creating-modal/images/ex-chakra.gif",
-    "tips-for-creating-modal/images/confirm-modal.png",
-    "tips-for-creating-modal/images/chakra-modal.png",
-    "tips-for-creating-modal/images/aria-labelledby.png",
-    "tips-for-creating-modal/index.mdx",
-    "tips-for-creating-modal/images",
-    "tips-for-creating-modal",
-    "A-few-things-I-recently-realized-to-keep-in-mind-when-creating-modals/index.mdx",
-    "a-few-things-i-recently-realized-to-keep-in-mind-when-creating-modals/images/scrollbar.png",
-    "a-few-things-i-recently-realized-to-keep-in-mind-when-creating-modals/images/scrollbar-wrong.png",
-    "a-few-things-i-recently-realized-to-keep-in-mind-when-creating-modals/index.mdx",
-    "a-few-things-i-recently-realized-to-keep-in-mind-when-creating-modals/images",
-    "a-few-things-i-recently-realized-to-keep-in-mind-when-creating-modals",
-    "a-few-things-I-recently-realized-to-keep-in-mind-when-creating-modals/index.mdx",
-    "a-few-things-I-recently-realized-to-keep-in-mind-when-creating-modals/images",
-    "a-few-things-I-recently-realized-to-keep-in-mind-when-creating-modals",
+    "tidy-first-review/index.md",
+    "README.md",
+    "Pasted image 20251113112917.png",
+    "Pasted image 20251113112914.png",
+    "무제.base",
+    "무제 1.base",
+    "무제 2.base",
+    "무제 3.base",
+    "무제 4.base",
+    "2025-retrospect/index.mdx",
+    "2025-retrospect-2/index.mdx",
+    "2025-retrospect/images/figure.jpg",
+    "2025-retrospect/images/aws.jpg",
+    "2025-retrospect/images/google.jpg",
+    "2025-retrospect/images/score.jpg",
+    "2025-retrospect/images/hero.png",
+    "2025-retrospect/images/20251208_135002.jpg",
+    "2025-retrospect-2/images/variables-for-i18n-2.png",
+    "2025-retrospect-2/images/variables-for-i18n.png",
+    "2025-developer-first-half-retrospect/index.mdx",
+    "2024-developer-retrospect-2/index.mdx",
+    "2024-developer-retrospect/index.mdx",
+    "why-we-need-computer-science/index.md",
+    "무제.md",
+    "_template/index.md",
     "().md",
     "react-query-2/index.mdx.md",
     "react-query-1/index.mdx.md",
-    "무제.md",
-    "_template/index.md",
     "template/index.md",
     "oklch-and-color-mix/Oklch 와 Color-mix.md"
   ]

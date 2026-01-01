@@ -1,0 +1,239 @@
+---
+title: Effective React Query Keys 번역
+published: 2025-07-17T10:48:00
+modified: 2025-07-17T10:48:00
+slug: translation-of-Effective-React-Query-Keys
+image: 
+draft: true
+tags:
+  - ReactQuery
+  - Translation
+summary:
+---
+원본: https://tkdodo.eu/blog/effective-react-query-keys
+
+---
+쿼리키는 React Query에서 가장 중요한 개념이다. 이 키는 라이브러리가 내부적으로 데이터를 올바르게 캐싱하고 쿼리 변경시 자동적으로 리패치를 수행하는데 필수적이다. 마지막으로, 쿼리키는 필요시 쿼리 캐시와 직접 인터렉션할 수 있게 해준다. 예를 들면 mutation이후 데이터를 변경한다거나 일부 쿼리를 수동적으로 invalidate할 필요가 있을 때와 같이 말이다.
+
+내가 개인적으로 쿼리 키를 어떻게 구조화하는지 보여주기 전에 이 세 포인트들이 무엇을 의미하는지 빠르게 살펴보자.
+
+## 데이터 캐싱
+내부적으로 쿼리 캐시는 시리얼라이즈된 쿼리키를 키로 사용하고 메타 정보가 포함된 쿼리 데이터가 값인 자바스크립트 객체일 뿐이다. 키는 결정적인 방식(deterministic way)으로 해싱되므로 객체를 키로 사용하는 것도 가능하다. (단, 최상위 키는 반드시 문자열이나 배열이어야한다.)
+
+키는 쿼리에 대해 *유일*해야한다는 것이 가장 중요하다. 만약 리액트 쿼리가 캐시에서 키에 해당하는 값을 찾으면 그것을 반환할 것이다. 또한 `useQuery`와 `useInfiniteQuery`에 같은 키를 사용할 수 없음에 유의하라. 쿼리 캐시는 하나만 사용하기에 둘의 키를 같게 쓰면 둘은 데이터를 공유하게 될 것이다. 이는 infinite query가 기본적으로 다른 일반적인 쿼리와는 다른 구조를 갖기 때문에 좋지 않다.
+
+```ts
+useQuery({
+  queryKey: ['todos'],
+  queryFn: fetchTodos,
+})
+
+// 🚨 this won't work
+useInfiniteQuery({
+  queryKey: ['todos'],
+  queryFn: fetchInfiniteTodos,
+})
+
+// ✅ choose something else instead
+useInfiniteQuery({
+  queryKey: ['infiniteTodos'],
+  queryFn: fetchInfiniteTodos,
+})
+```
+
+## 자동 리패치
+> 쿼리는 선언적이다.
+
+강조하지 않을 수 없는 또 하나의 몹시 중요한 컨셉이 있고 그것은 완전 이해하기까지 시간이 좀 걸릴 수 있다. 대부분의 사람들은 쿼리를, 특히 리패치 명령형으로 다룬다.
+
+나는 쿼리가 하나 있고, 그 쿼리가 어떤 데이터를 패치한다고 하자. 나는 버튼을 클릭했고, 다른 파라미터를 넣어 리패치가 일어나길 기대한다. 나는 다음과 같은 형태의 시도를 많이 봤다. 
+```ts
+function Component() {
+  const { data, refetch } = useQuery({
+    queryKey: ['todos'],
+    queryFn: fetchTodos,
+  })
+
+  // ❓ how do I pass parameters to refetch ❓
+  return <Filters onApply={() => refetch(???)} />
+}
+```
+
+내 대답은 **"그럴 수 없다"** 이다.
+그것은 `refetch`가 수행하는 것이 아니다. `refetch`는 같은 파라미터를 대상으로 사용하는 것이다.
+
+만약 당신의 데이터를 결정하는 어떤 상태값이 있다면, 당신이 할 일은 그 값을 쿼리 키에 집어넣는 것 뿐이다. 왜냐하면 키가 변경되면 리액트 쿼리는 자동으로 리패치를 수행할 것이기 때문이다. 따라서 당신이 필터를 적용하고자 한다면 당신의 클라이언트 상태를 바꾸기만 하면 된다.
+
+```ts
+function Component() {
+  const [filters, setFilters] = React.useState()
+  const { data } = useQuery({
+    queryKey: ['todos', filters],
+    queryFn: () => fetchTodos(filters),
+  })
+
+  // ✅ set local state and let it drive the query
+  return <Filters onApply={setFilters} />
+}
+```
+
+`setFilters`로 인해 리랜더링이 트리거되면 변경된 쿼리키가 리액트 쿼리에 전달될 것이고 리패치가 일어날 것이다. 더 깊이 있는 예제가 있으니 참고 바란다 ([#1: Practical React Query - Treat the query key like a dependency array](https://tkdodo.eu/blog/practical-react-query#treat-the-query-key-like-a-dependency-array))
+
+## 수동 조작
+쿼리 키의 구조는 쿼리 캐시를 수동 조작할 때 가장 중요해진다. invalidateQueries 또는 setQueriesData같이 대부분의 수동 조작 함수들은 일부 쿼리 키에 대해서만 동작하게 할 수 있는 옵션인 Query Filter를 지원한다. 
+
+## 리액트 쿼리 키를 효과적으로 다루기
+
+이 블로그에 올라오는 모든 것들이 그러하듯, 이제부터 설명할 포인트들은 내 개인적인 의견임을 기억해달라. 따라서 이 것들을 쿼리키를 사용할 때 반드시 지켜야하는 철칙같이 여기지 않았으면 한다. 경험상, 이 포인트들은 당신의 앱이 복잡해지려할 때 효과적이고, 확장성도 뛰어나다. 확실하게 당신은 이 것들을 단지 Todo 앱을 만드는데 적용할 필요가 없을 것이다.
+
+### Colocate
+만약 당신이 Kent C Dodd의 [Maintainability through colocation](https://kentcdodds.com/blog/colocation) 를 읽지 않았다면, 읽어보길 바란다. 나는 `/src/utils/queryKeys.ts`에 모든 쿼리 키를 전역적으로 저장하는 것이 더 나은 상황을 만들어줄 것이라 믿지 않는다. 나는 쿼리 키를 그 쿼리 키가 사용되는 쿼리 근처에 두고  feature 디렉토리 안에 배치한다. 
+```ts
+- src
+  - features
+    - Profile
+      - index.tsx
+      - queries.ts
+    - Todos
+      - index.tsx
+      - queries.ts
+```
+
+*queries*파일은 리액트 쿼리에 관련된 모든 것들이 들어갈 것이다. 나는 보통 이 파일에서 커스텀 훅 하나만 export하도록 해 Query Key와 마찬가지로 Query Function도 이 파일 내부에만 위치하게 하는 편이다.
+
+### 항상 Key를 배열의 형태로 쓴다
+쿼리 키는 배열 뿐만 아니라 문자열도 될 수 있다. 하지만 조합된 형태로 두는 것이 좋다. 나는 쿼리 키를 배열로 사용하는 것을 선호한다. 어쨌든, 리액트 쿼리는 내부적으로 그 것들을 배열로 바꿀 것이다. 따라서
+```ts
+// 🚨 will be transformed to ['todos'] anyhow
+useQuery({ queryKey: 'todos' })
+// ✅
+useQuery({ queryKey: ['todos'] })
+```
+
+**수정됨**: React Query v4부터는 모든 키가 배열이 되어야한다.
+
+### 구조화
+당신의 쿼리를 *가장 일반적인* 것에서 *가장 구체적인 것* 순으로 구조화하라. 그 사이에는 얼마든지 세분화 단계를 구분할 수 있다. 여기 내가 필터링이 가능한 투두리스트에서 어떻게 키를 구조화할지에 대한 예제이다.
+
+```ts
+['todos', 'list', { filters: 'all' }]
+['todos', 'list', { filters: 'done' }]
+['todos', 'detail', 1]
+['todos', 'detail', 2]
+```
+이 구조에서 `['todos']`키를 통해 관련된 모든 쿼리를 invalidate할 수도, list만 혹은 detail만 invalidate하거나 또는 정확한 키를 알고 있다면 하나의 리스트만 타겟해서 invalidate할 수도 있다. 필요에 따라 모든 리스트를 타겟할수도 있기에, Mutation의 반환값으로부터 쿼리의 데이터를 수정하는 것은 이것보단 더 복잡할 것이다. 
+
+```ts
+function useUpdateTitle() {
+  return useMutation({
+    mutationFn: updateTitle,
+    onSuccess: (newTodo) => {
+      // ✅ update the todo detail
+      queryClient.setQueryData(
+        ['todos', 'detail', newTodo.id],
+        newTodo
+      )
+
+      // ✅ update all the lists that contain this todo
+      queryClient.setQueriesData(['todos', 'list'], (previous) =>
+        previous.map((todo) =>
+          todo.id === newTodo.id ? newtodo : todo
+        )
+      )
+    },
+  })
+}
+```
+이 예제는 list와 detail의 구조가 다르다면 잘 동작하지 않을 것이다. 그럴 땐 대안으로, 모든 리스트를 invalidate하는 방법도 있다.
+```ts
+function useUpdateTitle() {
+  return useMutation({
+    mutationFn: updateTitle,
+    onSuccess: (newTodo) => {
+      queryClient.setQueryData(
+        ['todos', 'detail', newTodo.id],
+        newTodo
+      )
+
+      // ✅ just invalidate all the lists
+      queryClient.invalidateQueries({
+        queryKey: ['todos', 'list']
+      })
+    },
+  })
+}
+```
+
+만약 당신이 현재 어떤 리스트를 수정하게될지 알고 있다면, 예를 들어 URL로부터 필터를 읽어와 정확한 쿼리키 구조를 만들 수 있다면, 당신은 이 두 방법을 조합하여 `setQueryData`를 호출해 해당하는 리스트만 데이터를 업데이트하고 나머지는 invalidate할 수도 있다.
+
+```ts
+function useUpdateTitle() {
+  // imagine a custom hook that returns
+  // the current filters, stored in the url
+  const { filters } = useFilterParams()
+
+  return useMutation({
+    mutationFn: updateTitle,
+    onSuccess: (newTodo) => {
+      queryClient.setQueryData(
+        ['todos', 'detail', newTodo.id],
+        newTodo
+      )
+
+      // ✅ update the list we are currently on
+      queryClient.setQueryData(
+        ['todos', 'list', { filters }],
+        (previous) =>
+          previous.map((todo) =>
+            todo.id === newTodo.id ? newtodo : todo
+          )
+      )
+
+      // 🥳 invalidate all the lists,
+      // but don't refetch the active one
+      queryClient.invalidateQueries({
+        queryKey: ['todos', 'list'],
+        refetchActive: false,
+      })
+    },
+  })
+}
+```
+
+**수정됨**: v4에서 `refetchActive`가 `refetchType`으로 바뀌었다. 앞선 예제에선 `refetchType: 'none'`가 들어가야할 것이다. 지금 보고 있는 것들은 어떤 것도 리패치하길 원하지 않기 때문이다.
+
+### 쿼리키 팩토리 사용하기
+앞선 예제에서 당신은 내가 쿼리키를 다소 수동적으로 선언해온 것을 볼 수 있다. 이 방식은 에러를 일으킬 여지가 있는데다가 미래에 변경을 더 어렵게 할 것이다. 예를 들면, 당신의 키들에 하나의 레벨을 추가하는 경우가 있다.
+
+이것이 내가 feature마다 하나의 쿼리키 팩토리를 갖게 하는 것을 추천하는 이유이다. 이건 단순히 커스텀 훅에서 사용할 수 있는 쿼리 키를 생산하는 함수와 엔트리를 담고있는 객체이다. 앞선 예제의 구조를 예로 들면 아래와 같은 구조가 될 것이다.
+
+```ts
+const todoKeys = {
+  all: ['todos'] as const,
+  lists: () => [...todoKeys.all, 'list'] as const,
+  list: (filters: string) => [...todoKeys.lists(), { filters }] as const,
+  details: () => [...todoKeys.all, 'detail'] as const,
+  detail: (id: number) => [...todoKeys.details(), id] as const,
+}
+```
+
+이 방식은 내게 높은 자유도를 부과한다. 각 레벨의 생성은 다른 레벨 위에서 이뤄짐과 동시에 독립적으로 접근한다.
+
+```ts
+// 🕺 remove everything related
+// to the todos feature
+queryClient.removeQueries({
+  queryKey: todoKeys.all
+})
+
+// 🚀 invalidate all the lists
+queryClient.invalidateQueries({
+  queryKey: todoKeys.lists()
+})
+
+// 🙌 prefetch a single todo
+queryClient.prefetchQueries({
+  queryKey: todoKeys.detail(id),
+  queryFn: () => fetchTodo(id),
+})
+```

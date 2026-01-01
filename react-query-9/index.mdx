@@ -1,0 +1,105 @@
+---
+title: Placeholder and Initial Data in React Query 번역
+published: 2025-08-02T10:48:00
+modified: 2025-08-02T10:48:00
+slug: Placeholder-and-Initial-Data-in React-Query
+image: 
+draft: true
+tags:
+  - ReactQuery
+  - Translation
+summary:
+---
+원본: https://tkdodo.eu/blog/placeholder-and-initial-data-in-react-query
+
+---
+오늘의 아티클은 리액트 쿼리를 사용하는 프로젝트에서 유저 경험을 향상시키는 방법에 대한 내용이다.  대부분의 경우 우리(와 우리의 유저들)는 성가신 로딩 스피너를 좋아하지 않는다. 그것들은 때때로 필요하지만, 가능하면 피하고 싶다.
+
+리액트 쿼리는 이미 대부분의 경우에 이 로딩 스피너를 제거할 도구들을 제공한다. 우린 백그라운드 업데이트가 진행되는 동안 캐시에서 stale 데이터를 얻는다. 나중에 필요한 데이터를 미리 불러올 수도 있다. 그리고 쿼리 키가 변경될때도 이전 데이터를 유지해 갑작스런 로딩 상태를 피할 수 있다.
+
+또 다른 방법은 우리의 유즈 케이스에 적합할 것으로 예상되는 데이터를 미리 동기적으로 채워놓는 것이고, 이를 위해 리액트 쿼리는 비슷하면서도 다른 두 가지 옵션을 제공한다. Placeholder Data와 Initial Data이다.
+
+둘의 차이점과 둘 중 더 적합한 경우에 대해 이야기하기 전에 두 방법의 공통 점에 대해 이야기해보자.
+
+## 유사성
+앞선 내용에서 눈치챌 수 있듯, 두 옵션 모두 동기적으로 사용 가능한 데이터를 캐시에 미리 채워놓는 방법을 제공한다. 이는 심지어 이 미리 채워진 데이터를 사용하는 경우 쿼리가 `loading` 상태 없이 바로 `success` 상태가 될 수 있음을 의미한다. 또한 두 옵션 모두 값을 바로 받거나 그 값을 계산하는 것이 비싸면 값을 반환하는 함수를 받을 수 있다.
+
+```ts
+function Component() {
+  // ✅ status will be success even if we have not yet fetched data
+  const { data, status } = useQuery({
+    queryKey: ['number'],
+    queryFn: fetchNumber,
+    placeholderData: 23,
+  })
+
+  // ✅ same goes for initialData
+  const { data, status } = useQuery({
+    queryKey: ['number'],
+    queryFn: fetchNumber,
+    initialData: () => 42,
+  })
+}
+```
+
+마지막으로, 캐시에 데이터가 이미 있는 경우 이 두 옵션 모두 아무 효과가 없다. 그렇다면 각 옵션을 사용할 때 어떤 차이가 생기는가? 이를 이해하기 위해서, 우리는 리액트 쿼리에서 옵션들이 어떻게 동작하는지 간단히 살펴봐야한다.
+
+### 캐시 레벨에서 동작하는 옵션들
+각 쿼리 키마다 하나의 캐시 앤트리가 존재한다. 이는 꽤 명백하다. 왜냐하면 리액트 쿼리를 훌륭하게 만드는 점중 하나가 앱 내에서 전역적으로 같은 데이터를 공유할 수 있다는 것이기 때문이다.
+
+우리가 `useQuery` 에 전달하는 일부 옵션들은 캐시 엔트리에 영향을 줄 것이다. `queryFn`과 `gcTime`의 예제가 그러하다. 하나의 캐시 앤트리만 존재하기 때문에, 이러한 옵션들은 앤트리에서 데이터를 어떻게 가져올지 혹은 언제 가비지 컬렉트 될 지 지정한다.
+
+### 옵저버 레벨에서 동작하는 옵션들
+리액트 쿼리에서 옵저버는 넓은 의미에서 하나의 캐시 앤트리를 위해 생성된 구독이다. 옵저버는 캐시 앤트리의 변화를 감시하고 있다가 뭔가 변경이 일어나면 알림을 받는다.
+
+옵저버를 생성하는 가장 기초적인 방법은 `useQuery`를 호출하는 것이다. 우리가 `useQuery`를 호출할 때마다 하나의 옵저버가 생성되고 컴포넌트는 데이터가 바뀔 때 리랜더링될 것이다. 이는 또한 당연히 같은 캐시 앤트리를 감시하는 여러 옵저버를 만들 수 있음을 의미한다. 
+
+어쨌든, 한 쿼리에 얼마나 많은 옵저버가 붙어있는지는 React Query Devtools의 왼쪽에 보이는 숫자를 통해 알 수 있다.
+
+옵저버 레벨에서 동작하는 옵션들은 `select`혹은 `refetchInterval`가 있다. 사실 `select`가 데이터 변형에 탁월한 이유는 같은 캐시 앤트리를 감시하면서도 서로 다른 컴포넌트에서 그 데이터의 서로 다른 부분을 구독할 수 있기 때문이다.
+
+## 차이점
+`InitialData`는 캐시 레벨에서 동작하는 옵션인 반면 `placeholderData`는 옵저버 레벨에서 동작하는 옵션이다. 이는 다양한 의미를 갖는다.
+
+### 영구 저장
+우선, `initialData`는 캐시에 영구적으로 저장된다. 이것은 리액트 쿼리에게 '나는 백엔드에서 가져온 데이터 만큼 내 유즈케이스에 적합한 데이터를 이미 갖고 있어'라고 리액트 쿼리에게 알려주는 방법이다. 이 옵션은 캐시 레벨에서 동작하기 때문에 `initialData`를 사용하는 쿼리가 하나라도 있으면 이는 첫 번째 옵저버가 마운트 되는 즉시 캐시 앤트리를 생성한다. 만약 두 번째 옵저버에서 다른 `initialData`를 사용한다면 그 옵션은 무시될 것이다.
+
+`PlaceholderData`는 반면 캐시에 영구 저장되지 않는다. 나는 이 데이터를 "성공할 때 까지 성공한척 해라"데이터로 생각한다. 이 데이터는 실제하지 않는다. 리액트 쿼리는 실제 데이터를 가져오기 전까지 이 데이터를 전달한다. 이 옵션이 옵저버 레벨에서 동작하기 때문에 이론상 서로 다른 컴포넌트에 서로 다른 `placeholderData`가 있을 수 있다.
+
+### 백그라운드 리패치
+`placeholderData`를 사용하면 옵저버가 최초로 마운트될 때 항상 백그라운드 리패치가 일어날 것이다. 데이터가 실제하지 않기 때문에 리액트 쿼리는 실제 데이터를 가져올 것이다. 백그라운드 리패치가 일어나는 동안 `isPlaceholderData` 플래그를 `useQuery`로부터 가져올 수 있다. 이 플래그를 통해 유저에게 이 데이터가 가짜 데이터를 보고 있음을 시각적으로 알려줄 수 있다. 이 플래그는 데이터 패치가 끝나면 `false`로 바뀔 것이다.
+
+`InitialData`는 반면 그 데이터가 실제로 백그라운드 패치한 것에 준하는 데이터로 보기 때문에 그 값을 캐시에 추가하고, `staleTime`을 따른다. 만약 `staleTime`이 0이라면 여전히 백그라운드 리패치가 일어나는 것을 볼 수 있다. 
+
+하지만 `staleTime`을 다르게 설정한다면 (예를 들어 30초) 리액트 쿼리는 `initialData`옵션을 다음과 같이 볼 것이다.
+
+> 오...내가 동기적으로 신선한 새 데이터를 얻었네! 고마워, 나는 이제 30초간은 이 데이터가 상하지 않은 데이터이기 때문에 백엔드에서 데이터를 가져오지 않아도 되겠네.
+> - initialData와 staleTime을 마주한 리액트 쿼리
+
+만약 이것을 원치 않는다면 `initialDataUpdatedAt`옵션을 쿼리에 추가할 수 있다. 이 옵션은 리액트 쿼리에게 언제 이 initialData가 생성되었고 이를 고려해 백그라운드 리패치가 트리거 되게 한다. 이 방법은 기존 캐시 앤트리에서 initialData를 가져와 사용하여 `dataUpdatedAt` 타임스탬프를 이용가능할 때 아주 유용하다.
+```ts
+const useTodo = (id) => {
+  const queryClient = useQueryClient()
+
+  return useQuery({
+    queryKey: ['todo', id],
+    queryFn: () => fetchTodo(id),
+    staleTime: 30 * 1000,
+    initialData: () =>
+      queryClient
+        .getQueryData(['todo', 'list'])
+        ?.find((todo) => todo.id === id),
+    initialDataUpdatedAt: () =>
+      // ✅ will refetch in the background if our list query data
+      // is older than the provided staleTime (30 seconds)
+      queryClient.getQueryState(['todo', 'list'])?.dataUpdatedAt,
+  })
+}
+```
+
+### 에러 전환
+`initialData`혹은 `placeholderData`를 사용했고 백그라운드 리패치가 실행되었으며, 실패했다고 가정해보자. 두 옵션은 이때 어떻게 동작할거라 생각하는가? 
+
+InitialData: initialData는 캐시에 영구 저장 되기 때문에 리패치 에러는 백그라운드 에러로 치부된다. 쿼리는 error 상태로 바뀌지만 데이터는 여전히 존재할 것이다.
+
+PlaceholderData: placeholderData는 가짜 데이터이기 때문에 데이터를 찾아볼 수 없다. 쿼리는 에러 상태가 되고 데이터는 undefined가 될 것이다.
