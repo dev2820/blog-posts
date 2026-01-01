@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2025-retrospect/index.mdx",
+                "file": "2025-retrospect-2/index.mdx",
                 "mode": "source",
                 "source": false
               },
@@ -171,13 +171,15 @@
   },
   "active": "ea37a3fef8ef2235",
   "lastOpenFiles": [
+    "2025-retrospect/index.mdx",
+    "2025-retrospect-2/index.mdx",
+    "2025-retrospect-2/images/hero.png",
+    "2025-retrospect/images/hero.png",
+    "5-tips-for-selling-yourself-to-interviewers/index.mdx",
     "2025-retrospect/images/figure.jpg",
     "2025-retrospect/images/google.jpg",
     "2025-retrospect/images/aws.jpg",
     "2025-retrospect/images/score.jpg",
-    "2025-retrospect/images/hero.png",
-    "2025-retrospect/index.mdx",
-    "2025-retrospect-2/index.mdx",
     "tidy-first-review/index.mdx",
     "why-we-need-computer-science/index.md",
     "why-we-need-computer-science/index.mdx",
@@ -190,10 +192,8 @@
     "무제 1.base",
     "무제 2.base",
     "무제 3.base",
-    "무제 4.base",
     "2025-retrospect/images/20251208_135002.jpg",
     "2025-retrospect-2/images/variables-for-i18n-2.png",
-    "2025-retrospect-2/images/variables-for-i18n.png",
     "무제.md",
     "_template/index.md",
     "().md",
