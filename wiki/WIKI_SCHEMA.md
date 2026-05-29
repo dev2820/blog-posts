@@ -138,8 +138,8 @@ type: topic
 ```markdown
 # Wiki Log
 
-## [YYYY-MM-DD] ingest | folder-name
-어떤 페이지들이 생성/수정되었는지.
+## [YYYY-MM-DD] ingest | folder-name @ commit-hash
+어떤 페이지들이 생성/수정되었는지. commit-hash는 ingest 시점의 HEAD를 기록한다.
 
 ## [YYYY-MM-DD] query | 질문 요약
 어떤 페이지를 참조했는지, 새 페이지를 만들었는지.
