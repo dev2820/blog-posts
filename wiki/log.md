@@ -11,3 +11,7 @@ go-to-statement-considered-harmful, how-does-v8-array-sort-work, the-future-of-f
 career-growth, writing, software-craftsmanship, ai-and-development, frontend-deep-dive, startup-life, side-projects, cs-fundamentals
 
 index.md 생성.
+
+## [2026-05-30] query | "나는 어떤 개발자야?"
+
+전체 topic 7개를 종합하여 페르소나 분석. 답변을 topics/career-growth.md 개요에 저장.
