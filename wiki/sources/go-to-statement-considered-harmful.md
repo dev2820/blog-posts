@@ -17,6 +17,7 @@ kind: "지식"
 ## 접점
 
 - [why-developer-say-no](./why-developer-say-no.md) — 코드베이스의 복잡도가 기능 추가를 어렵게 만드는 구조. 프로세스 추적의 어려움과 연결
+- [CS 기초](../topics/cs-fundamentals.md) — CS 논문 리뷰를 통한 기초 원리 탐구
 - [소프트웨어 장인정신](../topics/software-craftsmanship.md) — 코드 가독성과 프로세스 흐름에 대한 고전적 통찰
 
 ## 성장 기록

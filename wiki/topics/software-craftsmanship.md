@@ -31,5 +31,8 @@ type: topic
 
 ## 관련 주제
 
+- [CS 기초](./cs-fundamentals.md) — 기초 원리에 대한 관심이 장인정신과 연결
+- [프론트엔드 딥다이브](./frontend-deep-dive.md) — 기술적 깊이에 대한 관심
+- [스타트업 생활](./startup-life.md) — 빠른 변화에 대응하는 코드 작성 전략
 - [AI와 개발](./ai-and-development.md) — AI 시대에도 장인정신은 유효한가
 - [커리어 성장](./career-growth.md) — 기술적 성장의 구체적 내용

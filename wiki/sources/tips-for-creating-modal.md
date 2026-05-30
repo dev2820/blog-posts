@@ -16,6 +16,7 @@ kind: "가이드"
 
 - [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) — 접근성과 UX 세부 지식
 - [2024-developer-retrospect-2](./2024-developer-retrospect-2.md) — Form 작업에서 접근성을 공부한 것과 연결
+- [why-do-we-have-to-use-oklch](./why-do-we-have-to-use-oklch.md) — 동일하게 프론트엔드 세부 지식을 다루는 탐구 포스트
 - [소프트웨어 장인정신](../topics/software-craftsmanship.md) — 접근성에 대한 꼼꼼한 태도
 
 ## 성장 기록

@@ -19,6 +19,9 @@ kind: "회고"
 - [2024-developer-retrospect-3](./2024-developer-retrospect-3.md) — 2025년 목표 중간 점검
 - [2025-retrospect](./2025-retrospect.md) — 2025년 종합 회고로 이어짐
 - [커리어 성장](../topics/career-growth.md) — 설계 역량 부족 인식
+- [2025-retrospect-2](./2025-retrospect-2.md) — 2025 종합 회고에서 설계 역량 부족 인식의 연장
+- [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) — 토끼굴 탐구 성향이 드러나는 회고
+- [사이드 프로젝트](../topics/side-projects.md) — 블로그 자동화, Ticketbell 종료 기록
 - [AI와 개발](../topics/ai-and-development.md) — AI 시대 설계 능력의 가치
 
 ## 성장 기록

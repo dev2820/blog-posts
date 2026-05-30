@@ -19,6 +19,8 @@ kind: "회고"
 - [2024-developer-retrospect](./2024-developer-retrospect.md) — 시리즈 1편
 - [2024-developer-retrospect-2](./2024-developer-retrospect-2.md) — 시리즈 2편
 - [the-future-of-frontend-developers-with-ai](./the-future-of-frontend-developers-with-ai.md) — 에디터 역량의 중요성 예측과 실제 방향 일치
+- [2025-developer-first-half-retrospect](./2025-developer-first-half-retrospect.md) — 2025 상반기 회고에서 이 글의 목표들을 중간 점검
+- [사이드 프로젝트](../topics/side-projects.md) — 에디터 만드는 즐거움이 사이드 프로젝트 방향을 결정
 - [커리어 성장](../topics/career-growth.md) — 정체성 발견, 방향 설정
 
 ## 성장 기록

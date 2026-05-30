@@ -22,6 +22,7 @@ Kent Beck의 XP에 영향을 받았음을 직접 언급한다.
 - [2024-developer-retrospect-3](./2024-developer-retrospect-3.md) — 시리즈 마지막 편
 - [why-developer-say-no](./why-developer-say-no.md) — 개발자의 세계관 관리라는 관점과 연결
 - [소프트웨어 장인정신](../topics/software-craftsmanship.md) — "파괴를 생각하고 작성하기" 원칙
+- [커리어 성장](../topics/career-growth.md) — 커리어 시작과 스타트업 선택의 기록
 - [스타트업 생활](../topics/startup-life.md) — 스타트업의 유연한 사고방식
 
 ## 성장 기록

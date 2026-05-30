@@ -17,6 +17,7 @@ kind: "회고"
 ## 접점
 
 - [yoo-si-min-writing-lecture-review](./yoo-si-min-writing-lecture-review.md) — 글쓰기 공부의 연장선
+- [5-tips-for-selling-yourself-to-interviewers](./5-tips-for-selling-yourself-to-interviewers.md) — 글쓰기 능력이 커리어 셀프 마케팅에도 연결
 - [글쓰기](../topics/writing.md) — 글쓰기를 통한 사고력 향상
 
 ## 성장 기록

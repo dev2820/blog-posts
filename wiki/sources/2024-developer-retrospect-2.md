@@ -21,6 +21,9 @@ Ticketbell에서 배운 "덜어내기의 미학": 회의 최소화, TASK 관리 
 - [2024-developer-retrospect](./2024-developer-retrospect.md) — 시리즈 이전 편
 - [2024-developer-retrospect-3](./2024-developer-retrospect-3.md) — 시리즈 다음 편
 - [사이드 프로젝트](../topics/side-projects.md) — 디자인 시스템, 블로그, Ticketbell
+- [growth-hacking-review](./growth-hacking-review.md) — 사이드 프로젝트 마케팅에 대한 관심과 연결
+- [tips-for-creating-modal](./tips-for-creating-modal.md) — Form 작업에서 접근성을 공부한 것이 모달 가이드로 이어짐
+- [스타트업 생활](../topics/startup-life.md) — Ticketbell에서 '덜어내기의 미학' 적용
 - [커리어 성장](../topics/career-growth.md) — 4년간의 성장 체감
 
 ## 성장 기록

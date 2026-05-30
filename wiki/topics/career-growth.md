@@ -66,6 +66,8 @@ type: topic
 
 ## 관련 주제
 
+- [프론트엔드 딥다이브](./frontend-deep-dive.md) — 깊은 탐구가 전문성 형성에 기여
+- [스타트업 생활](./startup-life.md) — 스타트업 경험이 커리어에 미치는 영향
 - [AI와 개발](./ai-and-development.md) — AI가 커리어 방향에 미치는 영향
 - [글쓰기](./writing.md) — 블로그 자체가 성장 기록의 수단
 - [소프트웨어 장인정신](./software-craftsmanship.md) — 기술적 성장의 구체적 내용

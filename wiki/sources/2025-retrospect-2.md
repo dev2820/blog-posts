@@ -22,6 +22,7 @@ AI 워크플로우 정립: "feature 개발은 AI에게, 리팩토링은 내가."
 - [2025-developer-first-half-retrospect](./2025-developer-first-half-retrospect.md) — "설계 역량 부족" 인식의 연장
 - [AI와 개발](../topics/ai-and-development.md) — AI 워크플로우, 패스트 팔로워 전략
 - [사이드 프로젝트](../topics/side-projects.md) — 피그마 플러그인, Scrapper, Readme Editor
+- [소프트웨어 장인정신](../topics/software-craftsmanship.md) — 증강코딩 vs 바이브코딩, AI 시대의 장인정신
 - [커리어 성장](../topics/career-growth.md) — 첫 비즈니스 임팩트, 성장 방향 전환
 
 ## 성장 기록
