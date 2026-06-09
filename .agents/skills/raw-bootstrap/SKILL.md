@@ -1,6 +1,14 @@
 ---
 name: raw-bootstrap
-description: 새 블로그 포스트의 빈 초안 폴더를 raw/ 아래에 부트스트랩하는 스킬. 유저로부터 어떤 글을 쓸지 러프한 설명(주제, 참고 URL, 책, 컨퍼런스 등)을 받아 적절한 영어 kebab-case slug와 한국어 title을 짓고, scripts/new-post.sh를 실행해 raw/<slug>/ 폴더와 frontmatter가 채워진 index.mdx를 만든 뒤 `draft: <slug>` 메시지로 커밋한다. "새 포스트 만들어줘", "이 URL 읽고 정리하는 글 쓸거야", "draft 폴더 만들어줘", "새 글 시작할게", "이 책 정리할 포스트 부트스트랩", "초안 만들어줘", "raw bootstrap" 같은 요청에 트리거된다. 이 블로그 레포에서 새 글 작성을 시작하려는 신호가 보이면, 명시적으로 스킬 이름을 부르지 않더라도 적극적으로 사용한다.
+description: >-
+  새 블로그 포스트를 쓰기 시작할 때 raw/ 아래에 빈 draft 폴더와
+  index.mdx frontmatter만 생성하는 스킬. 유저로부터 어떤 글을 쓸지 러프한
+  설명(주제, 참고 URL, 책, 컨퍼런스 등)을 받아 적절한 영어 kebab-case slug와
+  한국어 title을 짓고, scripts/new-post.sh를 실행해 raw/<slug>/ 폴더를 만든 뒤
+  draft 커밋을 만든다. "새 포스트 폴더 만들어줘", "draft 폴더 만들어줘",
+  "새 글 시작할게", "초안 폴더 만들어줘", "raw bootstrap"처럼 raw/<slug>/
+  생성이 명확한 요청에 사용한다. 본문 작성, 포스트 요약, wiki 반영 요청에는
+  사용하지 않는다.
 ---
 
 # raw-bootstrap
