@@ -8,4 +8,295 @@ draft: true
 tags:
 summary:
 ---
-## 제목
+## Zustand의 철학
+
+> 공식 슬로건: _"A small, fast and scalable bearbones state-management solution using simplified flux principles."_
+
+> — 작고, 빠르고, 확장 가능한 **뼈대만 있는(bearbones)** 상태 관리 라이브러리. Flux의 원칙을 **단순화**해서 따른다.
+
+## 핵심 가치
+
+|키워드|의미|
+|---|---|
+|**Small**|라이브러리 크기 자체가 작고, API 표면적도 최소화|
+|**Fast**|셀렉터 기반 구독으로 변경된 부분만 정확히 리렌더|
+|**Scalable**|작은 컴포넌트 상태부터 앱 전역 상태까지 동일한 모델로 확장 가능|
+|**Unopinionated**|디렉터리 구조·미들웨어·패턴을 강요하지 않음|
+|**Hooks-first**|Provider 래핑 없이 hook 하나로 store 소비|
+
+## 설계 원칙
+
+1. **Store는 곧 hook이다.**
+    - `const useStore = create(...)` 로 만든 store는 그 자체로 React hook. 별도 `<Provider>` 로 감쌀 필요가 없다.
+    - "Your store is a hook! You can put anything in it."
+2. **Provider 불필요 (Context-free).**
+    - React Context의 트리 의존 / 리렌더 전파 / 다중 렌더러 간 context 손실 문제를 우회.
+3. **셀렉터 기반 정밀 구독.**
+    - 컴포넌트는 자신이 선택한(state slice) 값이 바뀔 때만 리렌더된다.
+    - Context의 "전체 consumer 리렌더" 문제와 Redux 대비 boilerplate 모두 회피.
+4. **Simplified Flux.**
+    - "단방향 데이터 흐름 + action으로 state 변경" 이라는 Flux 본질은 유지.
+    - 단, **reducer / action type / dispatcher / middleware chain** 같은 형식적 장치는 제거.
+    - `set` 함수가 partial state를 자동 머지 → reducer 패턴 없이도 불변 업데이트.
+5. **Transient updates 지원.**
+    - 모든 변경이 렌더링을 유발하지 않아도 됨. `subscribe`로 컴포넌트 외부에서 상태 변경을 듣고, 리렌더 없이 사이드 이펙트만 처리 가능.
+6. **React 내부 이슈에 대한 방어적 설계.**
+    - Zombie child problem, Concurrent rendering, 혼합 렌더러 간 context 손실 등 React 생태계의 알려진 함정을 라이브러리 차원에서 해결.
+
+## Redux와의 차이
+
+- Reducer / action type 정의 / dispatcher / store enhancer 등 **형식적 구조 불필요**
+- Provider 래핑 없이 hook 으로 직접 소비
+- "어떻게 구조화할지"를 라이브러리가 강제하지 않음 (un-opinionated)
+- 동일한 단방향 데이터 흐름은 유지하되, 작성량을 크게 줄임
+
+## Context API와의 차이
+
+- 설정 코드가 훨씬 적음
+- **선택한 state slice가 바뀔 때만 리렌더** (Context는 value가 바뀌면 모든 consumer 리렌더)
+- 액션(상태 변경 함수)을 store 안에 함께 둘 수 있어 중앙 집중적 구성이 자연스러움
+
+## 한 줄로 요약하면
+
+> **"Provider 없이 hook 하나로 쓰는, Flux를 최소한으로 줄인 정밀 구독형 store."**
+
+> 이 철학을 이해하면 v5의 변경점들(`useShallow` 권장, 셀렉터 안정성 강제, `persist` 동작 단순화 등)이 모두 **"필요한 만큼만, 정확한 시점에 리렌더"** 라는 원칙을 더 엄격하게 강화하는 방향이라는 점이 자연스럽게 읽힌다.
+
+---
+
+# Zustand v5.0 마이그레이션 리포트
+
+> 공식 가이드: [Migrating to v5](https://zustand.docs.pmnd.rs/reference/migrations/migrating-to-v5)
+
+> v4 → v5 업그레이드 시 **반드시 검토**해야 하는 변경 사항을 정리한 문서입니다.
+
+---
+
+## TL;DR — 한 줄 요약
+
+- **Default export 제거**, **React 18+ / TS 4.5+ 필수**
+- 셀렉터에 `equalityFn` 두 번째 인자 → `useShallow` 또는 `createWithEqualityFn`로 마이그레이션 필수
+- v5는 **셀렉터 결과의 안정성(stable reference)** 을 강제 → 매 렌더마다 새 객체/배열을 만드는 패턴은 무한 루프 발생
+- `setState(state, true)` 의 `replace` 플래그가 **타입 레벨로 엄격**해짐
+- `persist` 미들웨어가 **생성 시점에 초기 state를 자동 저장하지 않음**
+
+---
+
+## 1. Breaking Changes
+
+### 1-1. Default export 제거
+
+```tsx
+// ❌ v4
+import create from 'zustand'
+
+// ✅ v5
+import { create } from 'zustand'
+```
+
+기존에 default import를 사용하던 모든 코드는 named import로 변경해야 합니다.
+
+### 1-2. 최소 버전 요구사항 상향
+
+|항목|v4|v5|
+|---|---|---|
+|React|16.8+|**18+ 필수**|
+|TypeScript|(느슨)|**4.5+ 필수**|
+|`use-sync-external-store`|내부 번들|**peer dependency**|
+
+`createWithEqualityFn` / `zustand/traditional` 사용 시 `use-sync-external-store` 를 직접 설치해야 합니다.
+
+```bash
+pnpm add use-sync-external-store
+```
+
+### 1-3. 제거된 기능
+
+- **UMD / SystemJS 빌드 제거** — `<script>` 태그로 직접 로드하던 환경은 더 이상 지원되지 않음
+- **ES5 지원 종료** — 모던 브라우저/Node 18+ 전제
+- v4에서 deprecated 처리되었던 API 전부 삭제
+
+---
+
+## 2. 커스텀 equality 함수 사용 방식 변경 (가장 큰 변경점)
+
+v4에서 셀렉터의 두 번째 인자로 전달하던 `equalityFn` 시그니처가 **삭제**되었습니다.
+
+### Before (v4)
+
+```tsx
+import { create } from 'zustand'
+import { shallow } from 'zustand/shallow'
+
+const useCountStore = create((set) => ({
+  count: 0,
+  text: 'hello',
+}))
+
+const Component = () => {
+  // ❌ v5에서는 동작하지 않음
+  const { count, text } = useCountStore(
+    (state) => ({ count: state.count, text: state.text }),
+    shallow,
+  )
+}
+```
+
+### After — 방법 1: `useShallow` 훅 사용 (권장)
+
+```tsx
+import { create } from 'zustand'
+import { useShallow } from 'zustand/shallow'
+
+const Component = () => {
+  const { count, text } = useCountStore(
+    useShallow((state) => ({
+      count: state.count,
+      text: state.text,
+    })),
+  )
+}
+```
+
+### After — 방법 2: `createWithEqualityFn` 사용 (v4 시그니처 유지)
+
+```tsx
+import { createWithEqualityFn as create } from 'zustand/traditional'
+import { shallow } from 'zustand/shallow'
+
+const useCountStore = create((set) => ({
+  count: 0,
+  text: 'hello',
+}))
+
+// v4와 동일하게 두 번째 인자로 equalityFn 전달 가능
+const { count, text } = useCountStore(
+  (state) => ({ count: state.count, text: state.text }),
+  shallow,
+)
+```
+
+> `zustand/traditional` 경로는 마이그레이션 호환층 성격입니다. 신규 코드는 가능하면 `useShallow` 방식을 사용하세요.
+
+---
+
+## 3. 셀렉터 출력의 안정성(Stability) 요구 강화
+
+v5는 React의 기본 동작과 일치하도록 **셀렉터가 매 렌더 동일 참조를 반환**할 것을 요구합니다. 새 객체/배열을 매번 생성하면 무한 루프가 발생합니다.
+
+### 문제 패턴
+
+```tsx
+// ❌ 매 렌더마다 새 배열 → 무한 루프
+const [searchValue, setSearchValue] = useStore((state) => [
+  state.searchValue,
+  state.setSearchValue,
+])
+```
+
+### 해결 1: `useShallow` 사용
+
+```tsx
+import { useShallow } from 'zustand/shallow'
+
+const [searchValue, setSearchValue] = useStore(
+  useShallow((state) => [state.searchValue, state.setSearchValue]),
+)
+```
+
+### 해결 2: 모듈 스코프 상수로 fallback 안정화
+
+```tsx
+const FALLBACK_ACTION = () => {}
+
+const action = useMainStore((state) => state.action ?? FALLBACK_ACTION)
+```
+
+> 인라인 `() => {}` 같은 fallback은 매 렌더 새 함수가 되어 동일한 문제를 일으킵니다.
+
+---
+
+## 4. `setState` `replace` 플래그의 TypeScript 타입 강화
+
+`setState(state, replace)`의 두 번째 인자 `replace`가 `true`인 경우, **state 객체 전체**를 만족해야 합니다.
+
+```tsx
+// ✅ 부분 업데이트
+store.setState({ key: 'value' })
+
+// ✅ 완전 교체 (모든 필드 포함)
+store.setState({ key: 'value', otherKey: 'other' }, true)
+
+// ❌ 타입 에러: replace=true인데 일부 필드 누락
+store.setState({}, true)
+```
+
+### `replace` 플래그를 런타임 분기로 사용하는 경우
+
+```tsx
+const replaceFlag = Math.random() > 0.5
+const args = [{ bears: 5 }, replaceFlag] as Parameters<
+  typeof useBearStore.setState
+>
+store.setState(...args)
+```
+
+타입 시스템이 `replace`의 boolean 값을 좁히지 못하므로, 위처럼 `Parameters<typeof ...>` 로 명시적 캐스팅이 필요합니다.
+
+---
+
+## 5. `persist` 미들웨어 동작 변경
+
+**v5부터 store 생성 시점의 initial state가 storage에 자동 저장되지 않습니다.** 셀렉터/초기값이 매 호출마다 다르다면 명시적으로 `setState`를 호출해야 합니다.
+
+### Before (v4)
+
+```tsx
+// 생성 시점의 랜덤값이 그대로 storage에 저장됨
+const useCountStore = create(
+  persist(
+    () => ({
+      count: Math.floor(Math.random() * 1000),
+    }),
+    { name: 'count' },
+  ),
+)
+```
+
+### After (v5)
+
+```tsx
+const useCountStore = create(
+  persist(
+    () => ({
+      count: 0, // 명시적인 default
+    }),
+    { name: 'count' },
+  ),
+)
+
+// 생성 후 명시적으로 초기화
+useCountStore.setState({
+  count: Math.floor(Math.random() * 1000),
+})
+```
+
+> 이전 동작에 의존하던 코드(예: 생성 시점에 한 번 계산되는 값)는 모두 후속 `setState`로 옮겨야 합니다.
+
+---
+
+## 6. 마이그레이션 권장 절차
+
+1. **먼저 v4 최신 버전으로 업그레이드**
+    - deprecation warning을 콘솔에서 모두 확인 가능
+    - 깨지지 않은 채로 v5에서 제거될 API를 미리 식별
+2. `create` default import → named import 일괄 치환
+3. 셀렉터에 `equalityFn` 두 번째 인자를 쓰는 곳을 모두 찾아 `useShallow` 로 마이그레이션
+    - grep 예시: `useStore(.*,\\s*shallow\\s*\\)`
+4. 매 렌더 새 객체/배열을 반환하는 셀렉터 전수 점검 (`useShallow` 적용)
+5. `setState(.., true)` 사용처 타입 에러 해소
+6. `persist`로 감싼 store 중 생성 시점에 동적 값을 넣는 패턴이 있는지 확인 후 후속 `setState`로 이동
+7. React 18+, TypeScript 4.5+ 보장
+8. `zustand/traditional` 의존성이 남는다면 `use-sync-external-store` peer 설치
+
+---
