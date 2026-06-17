@@ -4,10 +4,11 @@
 
 ## 커밋 메시지 Prefix
 
-| Prefix | 언제 | 예시 |
-|---|---|---|
-| `draft: <slug>` | 새 포스트의 빈 초안 폴더를 부트스트랩하는 첫 커밋. `raw/<slug>/` 가 처음 생성될 때. 본문은 이 커밋에 담지 않는다. | `draft: python-concurrency-notes` |
-| `wiki:` | wiki 디렉토리의 변경. ingest, query 결과 저장, lint 수정, 스키마 변경 등 wiki 관련 모든 커밋. | `wiki: 전체 ingest (16개 포스트)` |
+| Prefix            | 언제                                                                                                              | 예시                                |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `draft: <slug>`   | 새 포스트의 빈 초안 폴더를 부트스트랩하는 첫 커밋. `raw/<slug>/` 가 처음 생성될 때. 본문은 이 커밋에 담지 않는다. | `draft: python-concurrency-notes`   |
+| `publish: <slug>` | 포스트를 publish하는 커밋. wiki를 갱신해야한다.                                                                   | `publish: python-concurrency-notes` |
+| `wiki:`           | wiki 디렉토리의 변경. ingest, query 결과 저장, lint 수정, 스키마 변경 등 wiki 관련 모든 커밋.                     | `wiki: 전체 ingest (16개 포스트)`   |
 
 ## 관련 자동화
 
