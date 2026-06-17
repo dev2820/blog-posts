@@ -1,6 +1,6 @@
 ---
 name: raw-publish
-description: 블로그 포스트를 발행 상태로 전환하는 스킬. 지정한 포스트의 frontmatter에서 draft를 false로 바꾸고, 필수 필드를 검증한 뒤 `publish: <slug>` 커밋을 만든다. 커밋이 끝나면 바로 wiki-ingest 스킬을 실행해 wiki를 최신 상태로 유지한다.
+description: "블로그 포스트를 발행 상태로 전환하는 스킬. 지정한 포스트의 frontmatter에서 draft를 false로 바꾸고, 필수 필드를 검증한 뒤 `publish: <slug>` 커밋을 만든다. 커밋이 끝나면 바로 wiki-ingest 스킬을 실행해 wiki를 최신 상태로 유지한다."
 ---
 
 # raw-publish
