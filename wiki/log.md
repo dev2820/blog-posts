@@ -19,3 +19,7 @@ index.md 생성.
 ## [2026-05-30] lint
 
 양방향 링크 누락 20건 수정. source 9개, topic 4개 파일에 역방향 링크 추가. 깨진 링크 0건, source 누락 0건, index 불일치 0건.
+
+## [2026-06-17] ingest | the-semantic-web-translation @ 38cfaa5
+
+source 생성. topic cs-fundamentals 갱신. index.md 갱신.
