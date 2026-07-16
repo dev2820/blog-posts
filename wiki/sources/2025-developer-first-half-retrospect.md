@@ -10,19 +10,22 @@ kind: "회고"
 
 ## 핵심 생각
 
-"설계만 할 수 있다면 GPT가 쓱싹 처리해준다" — 설계 능력의 가치가 AI 시대에 더 올라간다는 인식. 동료와 GPT 모두 "바퀴를 재발명하는 경향"을 지적한 것이 인상적이었다.
+"설계만 할 수 있다면 GPT가 쓱싹 처리해준다" - 설계 능력의 가치가 AI 시대에 더 올라간다는 인식. 동료와 GPT 모두 "바퀴를 재발명하는 경향"을 지적한 것이 인상적이었다.
 
-디자인 시스템 교체는 "달리는 기차의 바퀴를 바꾸는 일" — 급진적이 아닌 점진적 접근의 중요성을 체감.
+디자인 시스템 교체는 "달리는 기차의 바퀴를 바꾸는 일" - 급진적이 아닌 점진적 접근의 중요성을 체감.
 
 ## 접점
 
-- [2024-developer-retrospect-3](./2024-developer-retrospect-3.md) — 2025년 목표 중간 점검
-- [2025-retrospect](./2025-retrospect.md) — 2025년 종합 회고로 이어짐
-- [커리어 성장](../topics/career-growth.md) — 설계 역량 부족 인식
-- [2025-retrospect-2](./2025-retrospect-2.md) — 2025 종합 회고에서 설계 역량 부족 인식의 연장
-- [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) — 토끼굴 탐구 성향이 드러나는 회고
-- [사이드 프로젝트](../topics/side-projects.md) — 블로그 자동화, Ticketbell 종료 기록
-- [AI와 개발](../topics/ai-and-development.md) — AI 시대 설계 능력의 가치
+- [2024-developer-retrospect-3](./2024-developer-retrospect-3.md) - 2025년 목표 중간 점검
+- [2025-retrospect](./2025-retrospect.md) - 2025년 종합 회고로 이어짐
+- [커리어 성장](../topics/career-growth.md) - 설계 역량 부족 인식
+- [2025-retrospect-2](./2025-retrospect-2.md) - 2025 종합 회고에서 설계 역량 부족 인식의 연장
+- [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) - 토끼굴 탐구 성향이 드러나는 회고
+- [사이드 프로젝트](../topics/side-projects.md) - 블로그 자동화, Ticketbell 종료 기록
+- [AI와 개발](../topics/ai-and-development.md) - AI 시대 설계 능력의 가치
+- [startup-life](../topics/startup-life.md) - 스타트업에서 디자인 시스템을 점진적으로 내재화하려던 단계. 2026년에는 Shadcn 도입과 팀 합의로 전환 속도가 높아졌다.
+- [software-craftsmanship](../topics/software-craftsmanship.md) - 리팩토링과 설계 역량 강화를 다짐했던 흐름이 2026년의 실험 기반 개선과 디자인 운영 원칙으로 이어졌다.
+- [2026-first-half-retrospect](./2026-first-half-retrospect.md) - Shadcn 도입과 합의 체계를 마련해 디자인 시스템 전환을 가속했다.
 
 ## 성장 기록
 

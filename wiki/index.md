@@ -1,6 +1,6 @@
 # Wiki Index
 
-## Sources (17개)
+## Sources (18개)
 - [go-to-statement-considered-harmful](sources/go-to-statement-considered-harmful.md) - 다익스트라 논문 리뷰. goto가 프로세스 추적을 무너뜨리는 이유
 - [how-does-v8-array-sort-work](sources/how-does-v8-array-sort-work.md) - V8의 Array.sort (TimSort) 동작 원리 깊이 분석
 - [the-future-of-frontend-developers-with-ai](sources/the-future-of-frontend-developers-with-ai.md) - AI 시대 프론트엔드 개발자 역량 예측
@@ -18,6 +18,7 @@
 - [tips-for-creating-modal](sources/tips-for-creating-modal.md) - 모달 구현 시 접근성/UX 유의점 가이드
 - [2025-retrospect](sources/2025-retrospect.md) - 2025 종합 회고. AI 혼란과 기대
 - [2025-retrospect-2](sources/2025-retrospect-2.md) - 2025 개발자편 회고. 첫 비즈니스 임팩트, 기초→설계 전환
+- [2026-first-half-retrospect](sources/2026-first-half-retrospect.md) - 2026 상반기 회고. 실험 문화와 디자인 시스템 전환 정착
 
 ## Topics (8개)
 - [커리어 성장](topics/career-growth.md) - 학생에서 스타트업 FE 개발자로의 성장 궤적

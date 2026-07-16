@@ -10,7 +10,7 @@ type: topic
 
 ### 핵심 정체성
 
-"에디터 만드는 게 가장 즐겁다." 디자인 시스템(Terra), 블로그, Readme Editor, 피그마 플러그인 — 만든 것들의 공통점은 전부 "누군가의 작업을 더 쉽게 만드는 도구"라는 것. 불편함을 발견하면 도구를 만들어 해결하는 것이 자연스러운 패턴.
+"에디터 만드는 게 가장 즐겁다." 디자인 시스템(Terra), 블로그, Readme Editor, 피그마 플러그인 - 만든 것들의 공통점은 전부 "누군가의 작업을 더 쉽게 만드는 도구"라는 것. 불편함을 발견하면 도구를 만들어 해결하는 것이 자연스러운 패턴.
 
 ### 강점: 소통과 번역
 
@@ -18,7 +18,7 @@ type: topic
 
 ### 사고 패턴: 덜어내기
 
-"최소한의 규칙", "파괴를 생각하고 작성하기", "하고 싶은 말만 하자" — 다른 시기, 다른 맥락에서 반복적으로 같은 결론에 도달한다. 불필요한 것을 덜어내고 본질에 집중하는 성향이 코드, 프로세스, 글쓰기를 관통한다.
+"최소한의 규칙", "파괴를 생각하고 작성하기", "하고 싶은 말만 하자" - 다른 시기, 다른 맥락에서 반복적으로 같은 결론에 도달한다. 불필요한 것을 덜어내고 본질에 집중하는 성향이 코드, 프로세스, 글쓰기를 관통한다.
 
 ### 탐구 스타일: 토끼굴 다이버
 
@@ -34,14 +34,15 @@ type: topic
 
 ## 관련 포스트
 
-- [2024-developer-retrospect](../sources/2024-developer-retrospect.md) — 스타트업 커리어 시작, 최소 규칙 원칙
-- [2024-developer-retrospect-2](../sources/2024-developer-retrospect-2.md) — 프로젝트 회고, 디자인 시스템, "덜어내기의 미학"
-- [2024-developer-retrospect-3](../sources/2024-developer-retrospect-3.md) — "에디터 만드는 게 가장 즐겁다" 정체성 발견
-- [5-tips-for-selling-yourself-to-interviewers](../sources/5-tips-for-selling-yourself-to-interviewers.md) — 커리어를 전략적으로 관리하는 관점
-- [the-future-of-frontend-developers-with-ai](../sources/the-future-of-frontend-developers-with-ai.md) — AI 시대 프론트엔드 역량 예측
-- [2025-developer-first-half-retrospect](../sources/2025-developer-first-half-retrospect.md) — 설계 역량 부족 인식, "바퀴 재발명" 경향
-- [2025-retrospect](../sources/2025-retrospect.md) — AI 혼란 속 방향 탐색
-- [2025-retrospect-2](../sources/2025-retrospect-2.md) — 첫 비즈니스 임팩트, 기초→설계 전환
+- [2024-developer-retrospect](../sources/2024-developer-retrospect.md) - 스타트업 커리어 시작, 최소 규칙 원칙
+- [2024-developer-retrospect-2](../sources/2024-developer-retrospect-2.md) - 프로젝트 회고, 디자인 시스템, "덜어내기의 미학"
+- [2024-developer-retrospect-3](../sources/2024-developer-retrospect-3.md) - "에디터 만드는 게 가장 즐겁다" 정체성 발견
+- [5-tips-for-selling-yourself-to-interviewers](../sources/5-tips-for-selling-yourself-to-interviewers.md) - 커리어를 전략적으로 관리하는 관점
+- [the-future-of-frontend-developers-with-ai](../sources/the-future-of-frontend-developers-with-ai.md) - AI 시대 프론트엔드 역량 예측
+- [2025-developer-first-half-retrospect](../sources/2025-developer-first-half-retrospect.md) - 설계 역량 부족 인식, "바퀴 재발명" 경향
+- [2025-retrospect](../sources/2025-retrospect.md) - AI 혼란 속 방향 탐색
+- [2025-retrospect-2](../sources/2025-retrospect-2.md) - 첫 비즈니스 임팩트, 기초→설계 전환
+- [2026-first-half-retrospect](../sources/2026-first-half-retrospect.md) - 실험 문화와 디자인 시스템 합의를 통해 설계 역량 강화를 실행에 옮겼다.
 
 ## 변화와 흐름
 
@@ -53,22 +54,24 @@ type: topic
 
 **2025 말**: 첫 비즈니스 임팩트 달성. "기초에서 설계로" 성장 방향 전환. 해외 취업이라는 장기 목표 유지.
 
+**2026 상반기**: 미국 사용자 실험과 디자인 시스템 합의로 '근거 있는 개발'을 구현하고, AI 활용 전략을 다듬으며 설계 역량 강화를 실제 성과와 연결.
+
 ## 인사이트
 
 - 동료 평가에서 "소통과 공유" 역량이 모든 시기에 걸쳐 일관되게 높이 평가된다. 이것은 의도적으로 키운 역량.
   근거: [2024-developer-retrospect-3](../sources/2024-developer-retrospect-3.md), [2025-developer-first-half-retrospect](../sources/2025-developer-first-half-retrospect.md)
 
 - 성장 방향이 "재미 추구 → 방향 설정 → 설계 역량 강화"로 진화하고 있다. 각 단계는 이전 단계의 한계를 인식하면서 자연스럽게 전환된다.
-  근거: [2024-developer-retrospect-3](../sources/2024-developer-retrospect-3.md), [2025-retrospect-2](../sources/2025-retrospect-2.md)
+  근거: [2024-developer-retrospect-3](../sources/2024-developer-retrospect-3.md), [2025-retrospect-2](../sources/2025-retrospect-2.md), [2026-first-half-retrospect](../sources/2026-first-half-retrospect.md)
 
 - "덜어내기"와 "최소한의 규칙"이 반복되는 패턴. 스타트업 업무에서도, 사이드 프로젝트에서도, 글쓰기에서도 같은 원칙이 적용된다.
   근거: [2024-developer-retrospect](../sources/2024-developer-retrospect.md), [2024-developer-retrospect-2](../sources/2024-developer-retrospect-2.md)
 
 ## 관련 주제
 
-- [프론트엔드 딥다이브](./frontend-deep-dive.md) — 깊은 탐구가 전문성 형성에 기여
-- [스타트업 생활](./startup-life.md) — 스타트업 경험이 커리어에 미치는 영향
-- [AI와 개발](./ai-and-development.md) — AI가 커리어 방향에 미치는 영향
-- [글쓰기](./writing.md) — 블로그 자체가 성장 기록의 수단
-- [소프트웨어 장인정신](./software-craftsmanship.md) — 기술적 성장의 구체적 내용
-- [사이드 프로젝트](./side-projects.md) — 성장의 실험장
+- [프론트엔드 딥다이브](./frontend-deep-dive.md) - 깊은 탐구가 전문성 형성에 기여
+- [스타트업 생활](./startup-life.md) - 스타트업 경험이 커리어에 미치는 영향
+- [AI와 개발](./ai-and-development.md) - AI가 커리어 방향에 미치는 영향
+- [글쓰기](./writing.md) - 블로그 자체가 성장 기록의 수단
+- [소프트웨어 장인정신](./software-craftsmanship.md) - 기술적 성장의 구체적 내용
+- [사이드 프로젝트](./side-projects.md) - 성장의 실험장

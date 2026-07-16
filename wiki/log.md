@@ -23,3 +23,7 @@ index.md 생성.
 ## [2026-06-17] ingest | the-semantic-web-translation @ 38cfaa5
 
 source 생성. topic cs-fundamentals 갱신. index.md 갱신.
+
+## [2026-07-16] ingest | 2026-first-half-retrospect @ 6c5e30e
+
+source 생성. topics ai-and-development, startup-life, software-craftsmanship, career-growth 갱신. index.md 갱신.
