@@ -18,6 +18,7 @@ kind: "회고"
 
 - [2025-retrospect-2](./2025-retrospect-2.md) — 시리즈 다음 편 (개발자편)
 - [2025-developer-first-half-retrospect](./2025-developer-first-half-retrospect.md) — 상반기 회고와 연결
+- [2026-first-half-retrospect](./2026-first-half-retrospect.md) — 이후 실험 문화와 설계 역량 강화로 이어진 흐름
 - [AI와 개발](../topics/ai-and-development.md) — "개발자는 사라지지 않는다"
 - [커리어 성장](../topics/career-growth.md) — 미국 방문, 영어 공부 필요성 인식
 - [글쓰기](../topics/writing.md) — 글쓰기 부진에 대한 반성

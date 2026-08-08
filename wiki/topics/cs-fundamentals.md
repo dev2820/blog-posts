@@ -10,11 +10,12 @@ type: topic
 
 - [go-to-statement-considered-harmful](../sources/go-to-statement-considered-harmful.md) - 다익스트라의 고전 논문 리뷰
 - [how-does-v8-array-sort-work](../sources/how-does-v8-array-sort-work.md) - TimSort 알고리즘 깊이 분석
+- [fisher-yates-shuffle](../sources/fisher-yates-shuffle.md) - 정렬 기반 셔플의 확률적 편향과 Fisher-Yates 분석
 - [the-semantic-web-translation](../sources/the-semantic-web-translation.md) - 시맨틱 웹 아키텍처와 온톨로지의 역할 번역 정리
 
 ## 변화와 흐름
 
-CS 논문과 알고리즘에 대한 탐구는 2024년 초반에 집중되어 있다. 이후에는 프론트엔드 특화 기술(CSS, 접근성)로 관심이 이동했으나, 2026년에는 시맨틱 웹 번역을 통해 지식 표현과 웹 표준 같은 CS 기초에 다시 시선을 돌렸다.
+CS 논문과 알고리즘에 대한 탐구는 2024년 초반에 집중되어 있다. 이후에는 프론트엔드 특화 기술(CSS, 접근성)로 관심이 이동했으나, 2026년에는 시맨틱 웹 번역과 셔플 알고리즘 탐구를 통해 지식 표현, 웹 표준, 확률적 정확성 같은 CS 기초에 다시 시선을 돌렸다.
 
 ## 인사이트
 
@@ -22,6 +23,8 @@ CS 논문과 알고리즘에 대한 탐구는 2024년 초반에 집중되어 있
   근거: [go-to-statement-considered-harmful](../sources/go-to-statement-considered-harmful.md)
 - 웹에 의미 층을 더하는 표준과 추론 기술에 꾸준한 관심이 있다.
   근거: [how-does-v8-array-sort-work](../sources/how-does-v8-array-sort-work.md), [the-semantic-web-translation](../sources/the-semantic-web-translation.md)
+- 코드가 짧고 그럴듯해 보이는지보다, 결과가 확률적으로 공정한지 실험과 계산으로 검증하려는 태도가 있다.
+  근거: [fisher-yates-shuffle](../sources/fisher-yates-shuffle.md)
 
 ## 관련 주제
 

@@ -21,6 +21,7 @@ kind: "회고"
 - [커리어 성장](../topics/career-growth.md) - 설계 역량 부족 인식
 - [2025-retrospect-2](./2025-retrospect-2.md) - 2025 종합 회고에서 설계 역량 부족 인식의 연장
 - [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) - 토끼굴 탐구 성향이 드러나는 회고
+- [스타트업 생활](../topics/startup-life.md) - 스타트업에서 디자인 시스템을 점진적으로 내재화한 경험
 - [사이드 프로젝트](../topics/side-projects.md) - 블로그 자동화, Ticketbell 종료 기록
 - [AI와 개발](../topics/ai-and-development.md) - AI 시대 설계 능력의 가치
 - [startup-life](../topics/startup-life.md) - 스타트업에서 디자인 시스템을 점진적으로 내재화하려던 단계. 2026년에는 Shadcn 도입과 팀 합의로 전환 속도가 높아졌다.

@@ -21,6 +21,7 @@ AI 도구 활용 피로감과 커리어 불안을 겪었지만, Codex 전환과 
 - [2025-developer-first-half-retrospect](./2025-developer-first-half-retrospect.md) - 디자인 시스템을 점진적으로 내재화하려던 이전 노력의 연장선상에서 Shadcn 도입과 합의 체계를 마련해 전환 속도를 끌어올렸다.
 - [2025-retrospect-2](./2025-retrospect-2.md) - 첫 비즈니스 임팩트를 경험한 이후, 실험 문화 정착을 통해 지표 개선을 체계화하려는 흐름이 이어진다.
 - [2025-retrospect](./2025-retrospect.md) - AI 혼란 속에서도 커리어 방향을 고민했던 시선이 Codex 전환과 "AI 소화 전략"으로 구체화되었다.
+- [커리어 성장](../topics/career-growth.md) - 실험 문화와 디자인 시스템 합의를 통해 설계 역량 강화를 실행에 옮겼다.
 - [ai-and-development](../topics/ai-and-development.md) - AI 도구와 커리어 방향에 대한 시각을 확장한다.
 - [startup-life](../topics/startup-life.md) - 미국 사용자에 맞춘 실험 문화와 디자인 시스템 전환이 스타트업 협업 방식 변화를 보여준다.
 - [software-craftsmanship](../topics/software-craftsmanship.md) - 데이터 기반 실험과 디자인 시스템 운영 원칙을 통해 '근거 있는 개발'을 추구한다.

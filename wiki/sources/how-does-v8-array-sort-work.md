@@ -16,3 +16,4 @@ V8 엔진의 Array.sort 구현을 깊이 파헤친 기술 포스트. 과거의 Q
 
 - [프론트엔드 딥다이브](../topics/frontend-deep-dive.md) — V8 내부 동작에 대한 깊은 탐구
 - [CS 기초](../topics/cs-fundamentals.md) — 정렬 알고리즘에 대한 이론적 이해
+- [fisher-yates-shuffle](./fisher-yates-shuffle.md) — 정렬 알고리즘의 비교 호출 흐름이 셔플 편향을 만드는 현상으로 탐구를 확장

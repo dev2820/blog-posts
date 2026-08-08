@@ -27,3 +27,11 @@ source 생성. topic cs-fundamentals 갱신. index.md 갱신.
 ## [2026-07-16] ingest | 2026-first-half-retrospect @ 6c5e30e
 
 source 생성. topics ai-and-development, startup-life, software-craftsmanship, career-growth 갱신. index.md 갱신.
+
+## [2026-08-08] ingest | fisher-yates-shuffle @ c4fe105
+
+source 생성. topics cs-fundamentals, frontend-deep-dive 갱신. 관련 source, index.md 갱신.
+
+## [2026-08-08] lint
+
+누락된 양방향 링크 3건 추가. 깨진 링크 0건, index.md 불일치 0건.

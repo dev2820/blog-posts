@@ -1,8 +1,9 @@
 # Wiki Index
 
-## Sources (18개)
+## Sources (19개)
 - [go-to-statement-considered-harmful](sources/go-to-statement-considered-harmful.md) - 다익스트라 논문 리뷰. goto가 프로세스 추적을 무너뜨리는 이유
 - [how-does-v8-array-sort-work](sources/how-does-v8-array-sort-work.md) - V8의 Array.sort (TimSort) 동작 원리 깊이 분석
+- [fisher-yates-shuffle](sources/fisher-yates-shuffle.md) - 정렬 기반 셔플의 확률적 편향과 Fisher-Yates 분석
 - [the-future-of-frontend-developers-with-ai](sources/the-future-of-frontend-developers-with-ai.md) - AI 시대 프론트엔드 개발자 역량 예측
 - [the-semantic-web-translation](sources/the-semantic-web-translation.md) - 시맨틱 웹 논문의 핵심 주장 번역과 지식 표현 해설
 - [5-tips-for-selling-yourself-to-interviewers](sources/5-tips-for-selling-yourself-to-interviewers.md) - 면접 셀프 마케팅 5가지 팁

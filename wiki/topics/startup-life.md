@@ -11,6 +11,7 @@ AI 스타트업에서의 업무 경험과 스타트업 특유의 사고방식. �
 - [2024-developer-retrospect](../sources/2024-developer-retrospect.md) - 최소한의 규칙, "파괴를 생각하고 작성하기"
 - [why-developer-say-no](../sources/why-developer-say-no.md) - 비개발자에게 개발자의 일을 설명하는 시도
 - [growth-hacking-review](../sources/growth-hacking-review.md) - 개발자의 마케팅 사고
+- [2025-developer-first-half-retrospect](../sources/2025-developer-first-half-retrospect.md) - 디자인 시스템을 점진적으로 내재화한 스타트업 경험
 - [2025-retrospect-2](../sources/2025-retrospect-2.md) - 첫 비즈니스 임팩트를 얻으며 스타트업 성장 방향을 고민
 - [2026-first-half-retrospect](../sources/2026-first-half-retrospect.md) - 미국 사용자 실험 문화와 디자인 시스템 합의를 통해 조직 실행력을 높였다.
 
