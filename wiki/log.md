@@ -35,3 +35,7 @@ source 생성. topics cs-fundamentals, frontend-deep-dive 갱신. 관련 source,
 ## [2026-08-08] lint
 
 누락된 양방향 링크 3건 추가. 깨진 링크 0건, index.md 불일치 0건.
+
+## [2026-08-29] lint
+
+CS 기초 topic의 의미 웹 인사이트를 단일 근거에 맞게 표현과 인용을 수정. 깨진 링크 0건 수정, 양방향 링크 0건 추가, index.md 변경 없음.

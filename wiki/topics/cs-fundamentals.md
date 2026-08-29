@@ -21,8 +21,8 @@ CS 논문과 알고리즘에 대한 탐구는 2024년 초반에 집중되어 있
 
 - 고전(다익스트라 논문)을 읽고 현대 프로그래밍에 적용하려는 태도가 있다. 이론과 실무를 연결하는 사고.
   근거: [go-to-statement-considered-harmful](../sources/go-to-statement-considered-harmful.md)
-- 웹에 의미 층을 더하는 표준과 추론 기술에 꾸준한 관심이 있다.
-  근거: [how-does-v8-array-sort-work](../sources/how-does-v8-array-sort-work.md), [the-semantic-web-translation](../sources/the-semantic-web-translation.md)
+- 웹에 의미 층을 더하는 표준과 추론 기술에 관심을 보였다.
+  근거: [the-semantic-web-translation](../sources/the-semantic-web-translation.md)
 - 코드가 짧고 그럴듯해 보이는지보다, 결과가 확률적으로 공정한지 실험과 계산으로 검증하려는 태도가 있다.
   근거: [fisher-yates-shuffle](../sources/fisher-yates-shuffle.md)
 

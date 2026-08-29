@@ -36,6 +36,10 @@ next: string            # Next post slug for series navigation (optional)
 
 ## Conventions
 
+### Commit messages
+
+Before creating or amending any commit, **always read [CONVENTION.md](./CONVENTION.md)** and use its repository-specific commit-message prefix. Do not default to general Conventional Commits prefixes.
+
 - Posts are written in **Korean**
 - Folder names use **English kebab-case** and typically match the slug
 - Series posts use `-N` suffix (e.g., `react-query-1`, `react-query-2`)
