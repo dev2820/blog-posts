@@ -75,7 +75,8 @@ Before creating or amending any commit, **always read [CONVENTION.md](./CONVENTI
 
 ## Critical Rule
 
-- `raw/` folder is the **single source of truth** for all blog content. **Always ask for human approval before modifying any file under `raw/`.**
+- `raw/` folder is the **single source of truth** for all blog content. **Always ask for human approval before modifying files under `raw/`, except for the research-note exception below.**
+- **Research-note exception:** For a user-requested `raw-research` task, the user has granted standing approval to create or update only `search.md` in the existing target post folder, without an additional approval prompt. Preserve existing user notes. This permission does not extend to `index.mdx`, frontmatter, images, other posts, creating post folders, or publishing.
 
 ## Do NOT
 

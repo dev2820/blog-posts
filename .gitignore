@@ -1,3 +1,7 @@
 .obsidian/
 _template/
 .pi/
+
+# Generated render and Python cache files
+**/__pycache__/
+raw/*/media/
